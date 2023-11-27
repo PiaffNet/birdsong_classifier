@@ -14,6 +14,7 @@ Evryone is free to edit this file. We us format markdown
   - [ ] ...
 - [x] download data
 - [ ] test git setup, familiarize with simple git practices
+  - [ ] create an organization
   - [ ] git branch
   - [ ] git pull
   - [ ] git status
