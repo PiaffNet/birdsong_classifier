@@ -35,7 +35,9 @@ def slicer(directory : str, newdir : str, silence_intolerance : int = 6 ) -> Non
                 try:
                     song = AudioSegment.from_file(fileN, "mp3")
                 except:
-                    song = AudioSegment.from_file(fileN, format="mp4")
+                    pass
+
+                #split the birdsong audio into 3sec chunks
                 splits = song[::3000]
 
                 if os.path.isdir(os.path.join(newdir, dirspecies)): #une fois que le fichier est splitté on le copie dans le bon dossier
