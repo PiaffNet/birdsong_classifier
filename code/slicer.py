@@ -5,10 +5,15 @@ import librosa
 import os
 
 
-def slicer(directory, newdir, silence_intolerance = 6):
+def slicer(directory : str, newdir : str, silence_intolerance : int = 6 ) -> None :
     '''
     Slices audio data to 3 seconds mp3s and puts them in the corresponding folder,
-    if the slice is too short or too silent it goes into different folders
+    if the slice is too short or too silent it goes into different folders.
+
+    params :
+        - directory : str  -> directory to copy from, should follow the directory/species_folders format
+        - newdir : str -> path to the copied data, will reconstruct the architecture of the original directory with silence and too_small added
+        - silence_intolerance : int -> the higher the number the less likely a sample is to be considered silent
 
     '''
     df = pd.read_csv("raw_data/train.csv")
@@ -26,7 +31,11 @@ def slicer(directory, newdir, silence_intolerance = 6):
                 x, sr = librosa.load(fileN, sr=sr)
                 X = librosa.stft(x)
                 rms_tot = librosa.feature.rms(S=X, frame_length=2048)
-                song = AudioSegment.from_mp3(fileN)
+                #song = AudioSegment.from_mp3(fileN)
+                try:
+                    song = AudioSegment.from_file(fileN, "mp3")
+                except:
+                    song = AudioSegment.from_file(fileN, format="mp4")
                 splits = song[::3000]
 
                 if os.path.isdir(os.path.join(newdir, dirspecies)): #une fois que le fichier est splitté on le copie dans le bon dossier
