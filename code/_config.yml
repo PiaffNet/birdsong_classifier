@@ -1,4 +1,3 @@
-
 # sound encoders variables
 MIN_SNR_DB : 5.0
 MAX_SNR_DB : 40.0

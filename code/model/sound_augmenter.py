@@ -2,16 +2,6 @@ import numpy as np
 from code.config import config
 from audiomentations import Compose, PitchShift, Shift, AddGaussianSNR
 
-# MIN_SNR_DB = 5.0
-# MAX_SNR_DB = 40.0
-# PROBABILITY_SNR = 1.0
-# MIN_SHIFT = -0.01
-# MAX_SHIFT = 0.01
-# SHIFT_UNIT = "seconds"
-# PROBABILITY_SHIFT = 1.0
-# MIN_SEMITONES = -4
-# MAX_SEMITONES = 4
-# PROBABILITY_PITCH = 1.0
 
 def transform_signal_add_SNR_noise(signals: np.ndarray, sample_rate: int)-> np.ndarray:
     """
