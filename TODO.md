@@ -2,7 +2,10 @@
 ## How to work together
 
 We will use this file to share our progress, our ideas etc. as well we will precise all functions to be implemented.
-Evryone is free to edit this file. We us format markdown
+Evryone is free to edit this file. We us format markdown.
+
+For good project management:
+ - refer to projects
 
 ## Project roadmap
 
