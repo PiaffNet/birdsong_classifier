@@ -1,5 +1,5 @@
 import numpy as np
-from code.config import config
+from birdsong.config import config
 from audiomentations import Compose, PitchShift, Shift, AddGaussianSNR
 
 
