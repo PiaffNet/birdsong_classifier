@@ -15,9 +15,6 @@ def get_classes_labels_dict(folders_labels:list)->dict:
     """
     return {label: i for i, label in enumerate(folders_labels)}
 
-def get_labels(path:str)->np.ndarray:
-    labels = None
-    return labels
 
 def train_validation_split(data:np.ndarray,
                      labels:np.ndarray,

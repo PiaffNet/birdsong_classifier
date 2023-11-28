@@ -16,10 +16,10 @@ For good project management:
   - [x] python 3.10.6
   - [ ] ...
 - [x] download data
-- [ ] test git setup, familiarize with simple git practices
-  - [ ] create an organization
-  - [ ] git branch
-  - [ ] git pull
-  - [ ] git status
-  - [ ] git commit
-  - [ ] git push
+- [x] test git setup, familiarize with simple git practices
+  - [x] create an organization
+  - [x] git branch
+  - [x] git pull
+  - [x] git status
+  - [x] git commit
+  - [x] git push
