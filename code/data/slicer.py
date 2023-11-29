@@ -38,7 +38,7 @@ def slicer(directory : str, newdir : str, silence_intolerance : int = 6 ) -> Non
                     pass
 
                 #split the birdsong audio into 3sec chunks
-                splits = song[::3000]
+                splits = song[::3000]  ##comprend pas bien ce que ca fait
 
                 if os.path.isdir(os.path.join(newdir, dirspecies)): #une fois que le fichier est splitté on le copie dans le bon dossier
                     for i,split in enumerate(splits) :
@@ -48,7 +48,7 @@ def slicer(directory : str, newdir : str, silence_intolerance : int = 6 ) -> Non
                         rms = librosa.feature.rms(S=X, frame_length=2048)
 
 
-                        if rms.mean() < rms_tot.mean()/silence_intolerance :
+                        if rms.mean() < rms_tot.mean()/silence_intolerance :  #si dossier silencieux
                             if os.path.isdir(os.path.join(newdir, "silence")):
                                 os.rename(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", f"{newdir}/silence/{file[:-4]}_{i}.mp3")
                             else :
