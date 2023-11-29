@@ -1,5 +1,8 @@
+"""
+This is the main file for the birdsong_classifier project.
+"""
 from birdsong.model.transform import transfrom, get_labels
-from birdsong.model.preprocessing import preprocess_data
+from birdsong.audiotransform.preprocessing import preprocess_data
 from birdsong.model.model import initialize_model, compile_model, train_model, evaluate_model
 from birdsong.utils import train_validation_split
 from birdsong.config import config
