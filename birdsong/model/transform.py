@@ -1,3 +1,7 @@
+"""
+This file contains methods used to transform the data
+before preprocessing.
+"""
 import numpy as np
 from tensorflow.keras.utils import to_categorical
 from birdsong.utils import get_folders_labels, get_classes_labels_dict
