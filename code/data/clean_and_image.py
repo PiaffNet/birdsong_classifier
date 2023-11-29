@@ -18,7 +18,10 @@ def clean_data(df):
 
 
 def sound_to_image(filename):
+    """ TODO : ajouter un test sur la shape du mel_spectrogram pour s'assurer
+    qu'elles soient toutes identiques
 
+    """
     #load the file
     y = librosa.load(filename)
 
