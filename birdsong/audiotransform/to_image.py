@@ -31,7 +31,14 @@ def sound_to_image(filename):
     n_mels = 64 #mel scale with 64 bands
     htk = 1750 #break frequency
 
-    mel_spectrogram = librosa.feature.melspectrogram(y = y , sr=sample_rate, n_fft = n_fft, n_mels = n_mels, htk= htk, hop_length= hop_length, fmin = f_min, fmax= f_max)
+    mel_spectrogram = librosa.feature.melspectrogram(y=y,
+                                                     sr=config.SAMPLING_RATE,
+                                                     n_fft=n_fft,
+                                                     n_mels=n_mels,
+                                                     htk=htk,
+                                                     hop_length=hop_length,
+                                                     fmin=f_min,
+                                                     fmax=f_max)
     mel_spectrogram_db = librosa.power_to_db(mel_spectrogram)
 
     return mel_spectrogram_db
