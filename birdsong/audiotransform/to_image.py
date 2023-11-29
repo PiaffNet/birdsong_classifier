@@ -120,7 +120,7 @@ class AudioPreprocessor:
 
     def preprocess_folder(self):
         # make a new folder for all preprocessed files
-        os.makedirs(self.output_folder, exist_ok=True) # TBD
+
 
         # Iterate through all files in the input folder
         for file_name in os.listdir(self.input_folder):
