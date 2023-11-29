@@ -14,11 +14,12 @@ PROBABILITY_PITCH: 1.0
 SAMPLING_RATE: 48000 #window size of 10.7 ms (512 samples at 48 kHz)
 DURATION_IN_SECONDS:  5  #seconds
 READING_OFFSET: 0
-STFT_NUMBER_SAMPLES: 512 # n_fft
-HOP_OVERLAP: 0.75 # 25 % de overlap, donc 0.75 * n_fft
+STFT_NUMBER_SAMPLES: 512
+HOP_OVERLAP: 0.25
 N_MELS: 64
 HTK: 1750 #break frequency
 WINDOW_TYPE: 'hann'
 FEATURE: 'mel'
 F_MIN: 150 #Hz
 F_MAX: 15000 #Hz
+HTK: 1750 #break frequency
