@@ -1,3 +1,7 @@
+"""
+this file contains the functions / class
+describing the Deep Learning mmodels used in the classification
+"""
 import numpy as np
 from typing import Tuple
 from birdsong.config import config

@@ -2,7 +2,7 @@ from pandas import pd
 import librosa
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
-
+from birdsong.config import config
 
 USEFUL_FEATS = ['filename','species', 'rating', 'channels', 'sampling_rate' , 'file_type']
 
