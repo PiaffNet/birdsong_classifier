@@ -2,6 +2,11 @@ numpy
 pandas
 matplotlib
 pytest
+setuptools
 tensorflow
 tensorflow-io
 librosa
+pydub
+audiomentations
+yaml
+sklearn
