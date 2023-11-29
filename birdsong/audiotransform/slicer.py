@@ -3,6 +3,7 @@ import numpy as np
 from pydub import AudioSegment
 import librosa
 import os
+from birdsong.config import config
 
 
 def slicer(directory : str, newdir : str, silence_intolerance : int = 6 ) -> None :
