@@ -1,42 +1,13 @@
-"""
-This file defines the audio preprocessing steps for the birdsong_classifier
-project. It contains the following transformation steps:
-
-- Convert all files to single channel (mono)
-- Standardize sampling rate (48,000Hz)
-
-This step comes after data splitting and before stft transformation (spectograms).
-"""
-
-import pandas as np
 import numpy as np
-from pydub import AudioSegment
-from pydub.playback import play
-import librosa
-import matplotlib.pyplot as plt
-from IPython.display import Audio
-from pathlib import Path
 
+def scale_minmax(X, min=0.0, max=1.0):
+    X_std = (X - X.min()) / (X.max() - X.min())
+    X_scaled = X_std * (max - min) + min
+    return X_scaled
 
-
-
-# """ Set the local file path to access split data set"""
-
-# GITHUB_NAME = github_name
-# LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), "code", GITHUB_NAME, "birdsong_classifier", "data")
-# LOCAL_FILE_PATH = os.path.join(LOCAL_DATA_PATH, )
-
-
-""" Convert audio file to single channel (mono) and standard sample rate (48k)"""
-
-# Note: by default in librosa, all audio is mixed to mono and resampled to 22050 Hz at load time
-
-song_normalized = librosa.load("local_file_path", mono=True, sr=48000)
-
-
-
-
-""" Method to play a song (use load before to get sr)"""
-
-def play_song(song_normalized):
-    return Audio(song_normalized, rate=sr)
+def spectrogram_image(mel):
+    # min-max scale to fit inside 8-bit range
+    img = scale_minmax(mel, 0, 255).astype(np.uint8)
+    img = np.flip(img, axis=0) # put low frequencies at the bottom in image
+    img = 255-img # invert. make black==more energy
+    return img
