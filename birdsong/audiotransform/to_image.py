@@ -28,23 +28,29 @@ def select_species_per_country(df, country="France"):
 # Note: by default in librosa, all audio is mixed to mono and resampled to 22050 Hz at load time
 
 class AudioPreprocessor:
-    def __init__(self, input_folder, output_folder, spectogram_type, output_format):
-        self.input_folder = input_folder
-        self.output_folder = output_folder
-        self.spectogram_type = spectogram_type # specto type 'ndarray' or '.png'
-        self.output_format = output_format
+    def __init__(self):
+        self.input_folder = config.DATA_INPUT_FOLDER
+        self.output_folder = config.DATA_OUTPUT_FOLDER
+        self.spectogram_type = config.SPECTOGRAM_TYPE # specto type 'ndarray' or '.png'
+        self.output_format = config.OUTPUT_FORMAT
 
 
     def create_data(self):
-        subfolder_lists = get_folders_labels(self.input_folder)
-        for subfolder in subfolder_lists:
-            input_subfolder_path = os.path.join(self.input_folder, subfolder)
-            target_directory = os.path.join(self.output_folder,subfolder)
-            create_folder_if_not_exists(target_directory)
-            file_path_list = glob.glob(os.path.join(input_subfolder_path,'*.mp3'))
-            for file_path in  file_path_list:
-                print(f"prepare processing of {file_path}")
-                self.preprocess_audio(file_path, target_directory)
+        if self.input_folder:
+            subfolder_lists = get_folders_labels(self.input_folder)
+            for subfolder in subfolder_lists:
+                input_subfolder_path = os.path.join(self.input_folder, subfolder)
+                if config.DATA_OUTPUT_FOLDER:
+                    target_directory = os.path.join(self.output_folder,subfolder)
+                    create_folder_if_not_exists(target_directory)
+                    file_path_list = glob.glob(os.path.join(input_subfolder_path,'*.mp3'))
+                    for file_path in  file_path_list:
+                        print(f"prepare processing of {file_path}")
+                        self.preprocess_audio(file_path, target_directory)
+                else:
+                    print("No valid output folder specified by user")
+        else:
+            print("No valid input folder specified by user")
 
     def preprocess_audio_array(self, audio_signal):
         try:

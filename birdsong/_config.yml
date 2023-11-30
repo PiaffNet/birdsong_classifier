@@ -1,6 +1,8 @@
 # data load parameters
 OUTPUT_FORMAT : 'png'
 SPECTOGRAM_TYPE : 'MEL'
+DATA_INPUT_FOLDER : '$YOUR_PATH_TO_DATA_FOLDER$'
+DATA_OUTPUT_FOLDER : '$YOUR_PATH_TO_DATA_FOLDER$'
 
 # sound augmenter encoders variables
 MIN_SNR_DB : 5.0
