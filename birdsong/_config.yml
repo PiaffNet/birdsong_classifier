@@ -2,7 +2,7 @@
 OUTPUT_FORMAT : 'png'
 SPECTOGRAM_TYPE : 'MEL'
 
-# sound encoders variables
+# sound augmenter encoders variables
 MIN_SNR_DB : 5.0
 MAX_SNR_DB : 40.0
 PROBABILITY_SNR : 1.0
