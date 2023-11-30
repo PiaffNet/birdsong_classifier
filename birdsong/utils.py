@@ -14,6 +14,10 @@ def get_folders_labels(path:str)->list:
     folders_labels = os.listdir(path)
     return [label for label in folders_labels if not label.startswith(".")]
 
+def create_folder_if_not_exists(folder_name):
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+
 def get_classes_labels_dict(folders_labels:list)->dict:
     """
     Get the dictionary of classes labels from a list of folders labels
