@@ -64,6 +64,15 @@ class AudioPreprocessor:
         self.spectogram_type = spectogram_type
 
 
+    def create_output_subfolder(self):
+        for subfolder in os.listdir(self.input_folder):
+            subfolder_path = os.path.join(self.input_folder, subfolder)
+            # if subfolder exists in input_folder, create equivalent subfolder in output_folder
+            if os.path.isdir(subfolder_path):
+                output_subfolder = os.path.join(self.output_folder, subfolder_path)
+                os.makedirs(output_subfolder, exist_ok=True)
+
+
     def preprocess_audio(self, file_name):
         input_path = os.path.join(self.input_folder, file_name)
         output_path = os.path.join(self.output_folder, file_name)
@@ -117,12 +126,4 @@ class AudioPreprocessor:
 
         return spectogram
 
-
-    def preprocess_folder(self):
-        # make a new folder for all preprocessed files
-        os.makedirs(self.output_folder, exist_ok=True) # TBD
-
-        # Iterate through all files in the input folder
-        for file_name in os.listdir(self.input_folder):
-            if file_name.endswith(".mp3"):
-                self.preprocess_audio(file_name)
+    def save_spectogram(self, file_format):
