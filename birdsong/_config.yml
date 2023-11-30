@@ -1,3 +1,7 @@
+# data load parameters
+OUTPUT_FORMAT : 'png'
+SPECTOGRAM_TYPE : 'MEL'
+
 # sound encoders variables
 MIN_SNR_DB : 5.0
 MAX_SNR_DB : 40.0
@@ -10,13 +14,13 @@ MIN_SEMITONES: -4
 MAX_SEMITONES: 4
 PROBABILITY_PITCH: 1.0
 
-# MEL spectrogram variables
+# MEL spectogram variables
 SAMPLING_RATE: 48000
 DURATION_IN_SECONDS:  5  #seconds
 READING_OFFSET: 0
 STFT_NUMBER_SAMPLES: 512
 HOP_OVERLAP: 0.25
-N_MELS: 64
+N_MELS: 64 #mel scale with 64 bands
 WINDOW_TYPE: 'hann'
 FEATURE: 'mel'
 F_MIN: 150 #Hz
