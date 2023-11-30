@@ -8,24 +8,24 @@ import matplotlib.pyplot as plt
 from birdsong.config import config
 
 
-USEFUL_FEATS = ['filename','species', 'rating', 'channels', 'sampling_rate' , 'file_type']
+#USEFUL_FEATS = ['filename','species', 'rating', 'channels', 'sampling_rate' , 'file_type']
 
 
-"""
-Garde seulement les espèces françaises et les colonnes intéressantes. Cela fait
-2706 lignes et 7 colonnes. Il reste 257 na dans le playback_used, et 2 dans le bitrate
-"""
-def clean_data(df):
-    species_fr = df[df["country"]== "France"]["species"].unique()
-    df_clean = (df[df["species"].isin(species_fr)])[USEFUL_FEATS]
-    return df_clean
+#"""
+#Garde seulement les espèces françaises et les colonnes intéressantes. Cela fait
+#2706 lignes et 7 colonnes. Il reste 257 na dans le playback_used, et 2 dans le bitrate
+#"""
+#def clean_data(df):
+#    species_fr = df[df["country"]== "France"]["species"].unique()
+#    df_clean = (df[df["species"].isin(species_fr)])[USEFUL_FEATS]
+#    return df_clean
+
 
 
 # def sound_to_image(filename):
 
 #     #load the file
 #     y = librosa.load(filename)
-
 #     # Compute the mel-spectrogram
 #     sample_rate = 48000 #window size of 10.7 ms (512 samples at 48 kHz)
 #     n_fft = 512
