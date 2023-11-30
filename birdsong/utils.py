@@ -2,6 +2,11 @@ import os
 import numpy as np
 from typing import Tuple
 
+def create_folder_if_not_exists(folder_name:str)->None:
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+        print(f"Folder {folder_name} created")
+
 def get_folders_labels(path:str)->list:
     """
     Get the list of folders in a given path, except the ones starting with a dot '.'
