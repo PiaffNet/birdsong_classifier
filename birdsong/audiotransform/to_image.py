@@ -46,6 +46,21 @@ class AudioPreprocessor:
                 print(f"prepare processing of {file_path}")
                 self.preprocess_audio(file_path, target_directory)
 
+    def preprocess_audio_array(self, audio_signal):
+        try:
+            # Step 1: transform cleaned audio file into spectogram (ndarray)
+            spectogram_array = self.get_spectogram(audio_signal)
+
+
+            # Step 2: transform spectogram into image array
+            image = spectrogram_image(spectogram_array)
+
+            print(f"Preprocessed {audio_signal}")
+            return image
+
+        except Exception:
+            print(f"Error processing {audio_signal}: {str(Exception)}")
+
     def preprocess_audio(self, file_path, target_directory):
         #input_path = os.path.join(self.input_folder, file_name)
         file_label = os.path.splitext(os.path.basename(file_path))[0]
