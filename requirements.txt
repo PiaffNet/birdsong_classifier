@@ -11,5 +11,5 @@ yaml
 h5py
 sklearn
 fastapi
-unicorn
+uvicorn
 httpx
