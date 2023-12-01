@@ -33,9 +33,6 @@ class AudioPreprocessor:
         input_folder_path, output_folder = self.get_data_paths()
         self.input_folder = input_folder_path
         self.output_folder = output_folder
-        input_folder_path, output_folder = self.get_data_paths()
-        self.input_folder = input_folder_path
-        self.output_folder = output_folder
         self.spectogram_type = config.SPECTOGRAM_TYPE # specto type 'ndarray' or '.png'
         self.output_format = config.OUTPUT_FORMAT
 
