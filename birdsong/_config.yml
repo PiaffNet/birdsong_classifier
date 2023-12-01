@@ -4,6 +4,9 @@ SPECTOGRAM_TYPE : 'MEL'
 DATA_INPUT_FOLDER : '$YOUR_PATH_TO_DATA_FOLDER$'
 DATA_OUTPUT_FOLDER : '$YOUR_PATH_TO_DATA_FOLDER$'
 
+# NN parameters
+BATCH_SIZE : 32
+
 # sound augmenter encoders variables
 MIN_SNR_DB : 5.0
 MAX_SNR_DB : 40.0

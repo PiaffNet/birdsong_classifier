@@ -4,7 +4,7 @@ This is the main file for the birdsong_classifier project.
 from birdsong.model.transform import transfrom, get_labels
 from birdsong.audiotransform.preprocessing import preprocess_data
 from birdsong.model.model import initialize_model, compile_model, train_model, evaluate_model
-from birdsong.utils import train_validation_split
+from birdsong.model.transform import get_train_data_set, get_validation_test_data_sets
 from birdsong.config import config
 
 
@@ -25,6 +25,13 @@ def preprocess_and_train():
 
 def preprocess():
     print('Preprocessing...')
+    VALIDATION_SPLIT = 0.3
+    BATCH_SIZE = 32
+    IMAGE_SIZE = (64, 376)
+    SHUFLE_VALUE = True
+    RANDOM_SEED = 42
+    TEST_SIZE_PART = 1
+
     return 1
 
 def train():
