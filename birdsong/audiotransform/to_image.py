@@ -48,7 +48,6 @@ class AudioPreprocessor:
             for subfolder in subfolder_lists:
                 input_subfolder_path = os.path.join(self.input_folder, subfolder)
                 if self.output_folder:
-                if self.output_folder:
                     target_directory = os.path.join(self.output_folder,subfolder)
                     create_folder_if_not_exists(target_directory)
                     file_path_list = glob.glob(os.path.join(input_subfolder_path,'*.mp3'))
@@ -56,9 +55,9 @@ class AudioPreprocessor:
                         print(f"prepare processing of {file_path}")
                         self.preprocess_audio(file_path, target_directory)
                 else:
-                    print("No valid output folder specified by user")
+                    print("❌ No valid output folder specified by user")
         else:
-            print("No valid input folder specified by user")
+            print("❌ No valid input folder specified by user")
 
     def preprocess_audio_array(self, audio_signal):
         try:
@@ -69,11 +68,11 @@ class AudioPreprocessor:
             # Step 2: transform spectogram into image array
             image = spectrogram_image(spectogram_array)
 
-            print(f"Preprocessed {audio_signal}")
+            print(f"✅ Preprocessed {audio_signal}")
             return image
 
         except Exception:
-            print(f"Error processing {audio_signal}: {str(Exception)}")
+            print(f"❌ Error processing {audio_signal}: {str(Exception)}")
 
     def preprocess_audio(self, file_path, target_directory):
         #input_path = os.path.join(self.input_folder, file_name)
@@ -90,7 +89,7 @@ class AudioPreprocessor:
             print(f"Preprocessed {target_path}")
 
         except Exception:
-            print(f"Error processing {target_path}: {str(Exception)}")
+            print(f"❌ Error processing {target_path}: {str(Exception)}")
 
 
 
