@@ -2,76 +2,105 @@
 this file contains the functions / class
 describing the Deep Learning mmodels used in the classification
 """
+import os
 import numpy as np
 from typing import Tuple
-from birdsong.config import config
-from tensorflow.keras import Sequential, Model, layers
+from tensorflow.keras import Model
+from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from birdsong.config import config
+from model_collections import get_model_architecture
+from birdsong.utils import create_folder_if_not_exists
+from birdsong.audiotransform.to_image import AudioPreprocessor
 
-def initialize_model(input_shape: tuple, num_classes: int)-> Model:
+def initialize_model(model_call_label : str, input_shape: tuple, num_classes: int)-> Model:
     """
     Initialize the model
     """
-    model = Sequential()
-
+    model = get_model_architecture(model_call_label, num_classes, input_shape)
 
     return model
 
-def compile_model(model: Model, learning_rate=0.0005)-> Model:
+def compile_model(model: Model)-> Model:
     """
     Compile the model
     """
-    model.compile(optimizer=Adam(learning_rate=learning_rate),
+    model.compile(optimizer=Adam(learning_rate=config.LEARNING_RATE),
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
     print("Model compiled")
     return model
 
 def train_model(model: Model,
-                train_data: np.ndarray,
-                train_labels: np.ndarray,
-                batch_size: int,
-                epochs: int,
-                patience: int,
-                validation_data=None,
-                validation_split=0.3)-> Tuple[Model, dict]:
+                train_data,
+                validation_data,
+                epochs=1000)-> Tuple[Model, dict]:
     """
     Train the model
     """
     es = EarlyStopping(monitor='val_loss',
                        mode='min',
                        verbose=1,
-                       patience=patience)
+                       patience=config.PATIENCE)
+    # Create a callback that saves the model's weights
+    create_folder_if_not_exists(config.CHECKPOINT_FOLDER_PATH)
+
+    cp_callback = save_model_checkpoints(config.CHECKPOINT_FOLDER_PATH)
+
+    #override epocs number
+    if config.EPOCHS:
+        epochs = config.EPOCHS
 
     history = model.fit(
         train_data,
-        train_labels,
         validation_data=validation_data,
-        validation_split = validation_split,
         epochs=epochs,
-        batch_size=batch_size,
-        callbacks=[es],
+        callbacks=[es,cp_callback],
         verbose=1)
 
     print("Model trained")
     return model, history
 
 def evaluate_model(model: Model,
-                   test_data: np.ndarray,
-                   test_labels: np.ndarray,
-                   batch_size: int)-> Tuple[Model, dict]:
+                   test_data)-> Tuple[Model, dict]:
     """
     Evaluate the model
     """
     if model is None:
         raise ValueError(" No model to evaluate.")
-        return None, None
 
     metrics  = model.evaluate(test_data,
-                              test_labels,
-                              batch_size=batch_size,
                               verbose=0,
                               return_dict = True)
     print("Model evaluated")
     return metrics
+
+def save_model(model, save_path, save_format='h5'):
+    model.save(save_path, save_format=save_format)
+    print(f"model saved in {save_path}")
+
+def load_model(model_path):
+    model = load_model(model_path)
+    return model
+
+def predict_model(model, data_to_predict):
+    audio_processor = AudioPreprocessor()
+    signal_processed = audio_processor.preprocess_audio_array(data_to_predict)
+    signal_tensor = np.expand_dims(signal_processed, axis=0)
+    predictions = model.predict(signal_tensor)
+    return predictions
+
+def save_model_checkpoints(checkpoint_folder_path, save_freq ='epoch'):
+
+    # Include the epoch in the file name (uses `str.format`)
+    checkpoint_path = os.path.join(checkpoint_folder_path,"cp-{epoch:04d}.ckpt")
+
+    # Create a callback that saves the model's weights every 5 epochs
+    cp_callback = ModelCheckpoint(
+         filepath=checkpoint_path,
+         verbose=1,
+         save_weights_only=True,
+         save_freq= save_freq)
+
+    return cp_callback

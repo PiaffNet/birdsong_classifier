@@ -8,4 +8,5 @@ librosa
 pydub
 audiomentations
 yaml
+h5py
 sklearn
