@@ -7,6 +7,7 @@ import skimage as ski
 from birdsong.config import config
 from birdsong.utils import get_folders_labels, create_folder_if_not_exists
 from birdsong.audiotransform.standardisation import spectrogram_image
+from birdsong import BASE_PATH
 
 
 
@@ -29,10 +30,12 @@ def select_species_per_country(df, country="France"):
 
 class AudioPreprocessor:
     def __init__(self):
-        self.input_folder = config.DATA_INPUT_FOLDER
-        self.output_folder = config.DATA_OUTPUT_FOLDER
+        input_folder_path, output_folder = self.get_data_paths()
+        self.input_folder = input_folder_path
+        self.output_folder = output_folder
         self.spectogram_type = config.SPECTOGRAM_TYPE # specto type 'ndarray' or '.png'
         self.output_format = config.OUTPUT_FORMAT
+
 
 
     def create_data(self):
@@ -40,7 +43,7 @@ class AudioPreprocessor:
             subfolder_lists = get_folders_labels(self.input_folder)
             for subfolder in subfolder_lists:
                 input_subfolder_path = os.path.join(self.input_folder, subfolder)
-                if config.DATA_OUTPUT_FOLDER:
+                if self.output_folder:
                     target_directory = os.path.join(self.output_folder,subfolder)
                     create_folder_if_not_exists(target_directory)
                     file_path_list = glob.glob(os.path.join(input_subfolder_path,'*.mp3'))
@@ -92,6 +95,13 @@ class AudioPreprocessor:
             spectogram = self.get_mel_spectogram(audio)
 
         return spectogram
+
+    @staticmethod
+    def get_data_paths():
+        if config.MODEL_TARGET == 'local':
+           input_folder_path = os.path.join(BASE_PATH, config.DATA_INPUT_FOLDER)
+           output_folder = os.path.join(BASE_PATH,config.DATA_OUTPUT_FOLDER)
+           return input_folder_path, output_folder
 
     @staticmethod
     def get_mel_spectogram(audio):
