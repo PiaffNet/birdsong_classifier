@@ -33,8 +33,12 @@ class AudioPreprocessor:
         input_folder_path, output_folder = self.get_data_paths()
         self.input_folder = input_folder_path
         self.output_folder = output_folder
+        input_folder_path, output_folder = self.get_data_paths()
+        self.input_folder = input_folder_path
+        self.output_folder = output_folder
         self.spectogram_type = config.SPECTOGRAM_TYPE # specto type 'ndarray' or '.png'
         self.output_format = config.OUTPUT_FORMAT
+
 
 
 
@@ -43,6 +47,7 @@ class AudioPreprocessor:
             subfolder_lists = get_folders_labels(self.input_folder)
             for subfolder in subfolder_lists:
                 input_subfolder_path = os.path.join(self.input_folder, subfolder)
+                if self.output_folder:
                 if self.output_folder:
                     target_directory = os.path.join(self.output_folder,subfolder)
                     create_folder_if_not_exists(target_directory)
