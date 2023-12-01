@@ -1,46 +1,20 @@
 import os
+import glob
 import numpy as np
-from pandas import pd
-from pydub import AudioSegment
-from IPython.display import Audio
+import pandas as pd
 import librosa
-import matplotlib.pyplot as plt
+import skimage as ski
 from birdsong.config import config
-
-
-#USEFUL_FEATS = ['filename','species', 'rating', 'channels', 'sampling_rate' , 'file_type']
-
-
-#"""
-#Garde seulement les espèces françaises et les colonnes intéressantes. Cela fait
-#2706 lignes et 7 colonnes. Il reste 257 na dans le playback_used, et 2 dans le bitrate
-#"""
-#def clean_data(df):
-#    species_fr = df[df["country"]== "France"]["species"].unique()
-#    df_clean = (df[df["species"].isin(species_fr)])[USEFUL_FEATS]
-#    return df_clean
+from birdsong.utils import get_folders_labels, create_folder_if_not_exists
+from birdsong.audiotransform.standardisation import spectrogram_image
 
 
 
-# def sound_to_image(filename):
-
-#     #load the file
-#     y = librosa.load(filename)
-#     # Compute the mel-spectrogram
-#     sample_rate = 48000 #window size of 10.7 ms (512 samples at 48 kHz)
-#     n_fft = 512
-#     f_min = 150 #frequency range between 150 et 15 kHz
-#     f_max = 15000
-#     hop_length = round(0.75*n_fft) # 25 % de overlap, donc 0.75 * n_fft
-#     n_mels = 64 #mel scale with 64 bands
-#     htk = 1750 #break frequency
-
-#     mel_spectrogram = librosa.feature.melspectrogram(y = y , sr=sample_rate, n_fft = n_fft, n_mels = n_mels, htk= htk, hop_length= hop_length, fmin = f_min, fmax= f_max)
-#     mel_spectrogram_db = librosa.power_to_db(mel_spectrogram)
-
-#     return mel_spectrogram_db
-
-
+def select_species_per_country(df, country="France"):
+    USEFUL_FEATS = ['filename','species', 'rating', 'channels', 'sampling_rate' , 'file_type']
+    species_fr = df[df["country"]== country]["species"].unique()
+    df_clean = (df[df["species"].isin(species_fr)])[USEFUL_FEATS]
+    return df_clean
 
 """ Convert audio file to single channel (mono) and standard sample rate (48k)
     --> takes input folder containing raw audio files and creates new output folder
@@ -51,63 +25,65 @@ from birdsong.config import config
     - `Input` and `output` folders are paths that need to be specified when method is called
 """
 
-# TODO: - def save_spectogram function to save into new folder
-#       - save
-
-
 # Note: by default in librosa, all audio is mixed to mono and resampled to 22050 Hz at load time
 
 class AudioPreprocessor:
-    def __init__(self, input_folder, output_folder, spectogram_type):
-        self.input_folder = input_folder
-        self.output_folder = output_folder
-        self.spectogram_type = spectogram_type
+    def __init__(self):
+        self.input_folder = config.DATA_INPUT_FOLDER
+        self.output_folder = config.DATA_OUTPUT_FOLDER
+        self.spectogram_type = config.SPECTOGRAM_TYPE # specto type 'ndarray' or '.png'
+        self.output_format = config.OUTPUT_FORMAT
 
 
-    def preprocess_audio(self, file_name):
-        input_path = os.path.join(self.input_folder, file_name)
-        output_path = os.path.join(self.output_folder, file_name)
+    def create_data(self):
+        if self.input_folder:
+            subfolder_lists = get_folders_labels(self.input_folder)
+            for subfolder in subfolder_lists:
+                input_subfolder_path = os.path.join(self.input_folder, subfolder)
+                if config.DATA_OUTPUT_FOLDER:
+                    target_directory = os.path.join(self.output_folder,subfolder)
+                    create_folder_if_not_exists(target_directory)
+                    file_path_list = glob.glob(os.path.join(input_subfolder_path,'*.mp3'))
+                    for file_path in  file_path_list:
+                        print(f"prepare processing of {file_path}")
+                        self.preprocess_audio(file_path, target_directory)
+                else:
+                    print("No valid output folder specified by user")
+        else:
+            print("No valid input folder specified by user")
 
+    def preprocess_audio_array(self, audio_signal):
         try:
-                # Load the audio file with pydub
-                audio = AudioSegment.from_mp3(self.input_path)
-
-                # Step 1: Resample audio to target sample rate and convert from stereo to mono
-                audio = audio.resample(sample_rate_Hz=config.SAMPLING_RATE,
-                                    channels=1) # channel=1 for mono
-
-                # Step 2: transform cleaned audio files into spectograms
-                spectogram_array = self.get_spectogram(audio)
-
-                # Step 3: export preprocessed file as ndarray (in case other formats remain)
-                self.save_spectogram(spectogram_array, file_format='png')
-                #spectogram_array.exports()) (self.output_path, format="mp3")
-                """ TODO:
-                    def function to save spec.ndarrays in new folder """
+            # Step 1: transform cleaned audio file into spectogram (ndarray)
+            spectogram_array = self.get_spectogram(audio_signal)
 
 
-                print(f"Preprocessed {file_name}")
+            # Step 2: transform spectogram into image array
+            image = spectrogram_image(spectogram_array)
+
+            print(f"Preprocessed {audio_signal}")
+            return image
 
         except Exception:
-            print(f"Error processing {file_name}: {str(Exception)}")
+            print(f"Error processing {audio_signal}: {str(Exception)}")
 
-    @staticmethod
-    def get_mel_spectogram(audio):
-        y = librosa.load(audio)
-        ## set mel-spectogram params
-        hop_length = round((1 - config.HOP_OVERLAP) * config.STFT_NUMBER_SAMPLES) # 25 % de overlap, donc 0.75 * n_fft
+    def preprocess_audio(self, file_path, target_directory):
+        #input_path = os.path.join(self.input_folder, file_name)
+        file_label = os.path.splitext(os.path.basename(file_path))[0]
+        target_path = os.path.join(target_directory, file_label + '.' + self.output_format)
 
-        ## convert to mel-spectogram
-        mel_spectogram = librosa.feature.melspectrogram(y=y,
-                                                        sr=config.SAMPLING_RATE,
-                                                        n_fft=config.STFT_NUMBER_SAMPLES,
-                                                        n_mels=config.N_MELS,
-                                                        htk=config.HTK,
-                                                        hop_length=hop_length,
-                                                        fmin=config.F_MIN,
-                                                        fmax=config.F_MAX)
-        mel_spectogram_db = librosa.power_to_db(mel_spectogram) # this returns a file of type ndarray
-        return mel_spectogram_db
+        try:
+            # Step 2: transform cleaned audio file into spectogram (ndarray)
+            spectogram_array = self.get_spectogram(file_path)
+
+            # if image wanted, convert format to .png
+            self.save_spectogram(spectogram_array, target_path)
+
+            print(f"Preprocessed {target_path}")
+
+        except Exception:
+            print(f"Error processing {target_path}: {str(Exception)}")
+
 
 
     def get_spectogram(self, audio)->np.ndarray:
@@ -117,12 +93,37 @@ class AudioPreprocessor:
 
         return spectogram
 
+    @staticmethod
+    def get_mel_spectogram(audio):
+        y, sr_load = librosa.load(audio, mono=True, sr=config.SAMPLING_RATE)
+        ## set mel-spectogram params
+        hop_length = round((1 - config.HOP_OVERLAP) * config.STFT_NUMBER_SAMPLES) # 25 % de overlap, donc 0.75 * n_fft
 
-    def preprocess_folder(self):
-        # make a new folder for all preprocessed files
+        ## convert to mel-spectogram
+        mel_spectogram = librosa.feature.melspectrogram(y=y,
+                                                        sr=sr_load,
+                                                        n_fft=config.STFT_NUMBER_SAMPLES,
+                                                        n_mels=config.N_MELS,
+                                                        htk=config.HTK,
+                                                        hop_length=hop_length,
+                                                        fmin=config.F_MIN,
+                                                        fmax=config.F_MAX)
+
+        mel_spectogram_db = librosa.power_to_db(mel_spectogram) # returns ndarray type file
+        return mel_spectogram_db
 
 
-        # Iterate through all files in the input folder
-        for file_name in os.listdir(self.input_folder):
-            if file_name.endswith(".mp3"):
-                self.preprocess_audio(file_name)
+    def save_spectogram(self, spectogram_array, target_path):
+
+        if self.output_format == 'png':
+            image = spectrogram_image(spectogram_array)
+            ski.io.imsave(target_path, image)
+
+        if self.output_format == 'npy':
+           # Step 3: save preprocessed file to output (sub)
+           np.save(target_path, spectogram_array)
+
+
+#mel = sound_to_image(filepath)
+#im = spectrogram_image(mel)
+#skimage.io.imsave(os.path.join(newdir, dirspecies, file[:-4])+".png", im)
