@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 from typing import Tuple
 
 def create_folder_if_not_exists(folder_name:str)->None:
@@ -37,3 +38,17 @@ def train_validation_split(data:np.ndarray,
     labels_val = None
 
     return data_train, labels_train, data_val, labels_val
+
+def read_prediction(model_predictions: np.ndarray, class_names)->pd.DataFrame:
+    (n_rows, n_columns) = model_predictions.shape
+    score_pred = [
+        [
+        np.argmax(model_predictions[n]),
+        class_names[np.argmax(model_predictions[n])],
+        "this song most likely belongs to {} with a {:.2f} percent confidence."\
+        .format(class_names[np.argmax(model_predictions[n])], 100 * np.max(model_predictions[n]))
+        ] for n in range(n_rows)
+    ]
+
+    return pd.DataFrame(score_pred,
+                        columns=["prediction", "class", "description"])

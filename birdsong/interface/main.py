@@ -6,40 +6,67 @@ from birdsong.audiotransform.preprocessing import preprocess_data
 from birdsong.model.model import initialize_model, compile_model, train_model, evaluate_model
 from birdsong.model.transform import get_train_data_set, get_validation_test_data_sets
 from birdsong.config import config
-
+from birdsong.audiotransform.to_image import AudioPreprocessor
+from birdsong.model.transform import get_train_data_set, get_validation_test_data_sets
+from birdsong.model.model import initialize_model, compile_model, train_model, evaluate_model, save_model,load_model
+from birdsong.utils import read_prediction
 
 def preprocess_and_train():
 
     # Transform the data
-    data = transfrom(data)
-    labels = get_labels()
+    # split data
 
-    # Train and split the data
-    if config.TEST_SPLIT:
-        steps_with_test_split(data, labels)
-    else:
-        steps_without_test_split(data, labels)
+    try:
+        res_prep = preprocess()
+        if res_prep==1:
+            res = train()
+            print(" preprocess and train done")
 
-    print(" preprocess and train done")
+    except Exception:
+            print(f"Fatal error : {str(Exception)}")
 
 
 def preprocess():
     print('Preprocessing...')
-    VALIDATION_SPLIT = 0.3
-    BATCH_SIZE = 32
-    IMAGE_SIZE = (64, 376)
-    SHUFLE_VALUE = True
-    RANDOM_SEED = 42
-    TEST_SIZE_PART = 1
+
+    audio_processor = AudioPreprocessor()
+    audio_processor.create_data()
+
+    print("preprocess done")
 
     return 1
 
 def train():
     print('Training...')
+    train_ds = get_train_data_set()
+    val_ds, test_ds = get_validation_test_data_sets()
+
+    class_names = train_ds.class_names
+    num_classes = len(class_names)
+
+    print("find {num_classes} in train data set")
+
+    model = initialize_model(model_call_label=config.MODEL_NAME,
+                             input_shape=(64, 376, 1),
+                             num_classes=num_classes)
+    model = compile_model(model)
+
+    model, history = train_model(model=model,
+                                 train_data=train_ds,
+                                 validation_data=val_ds)
+
+    metrics = evaluate_model(model=model, test_data=test_ds)
+
+    print("Training loss {metrics[0]} accuracy {metrics[1]}")
+    save_model(model, config.MODEL_SAVE_PATH)
+
     return 1
 
 def predict():
     print('Predicting...')
+
+    model = load_model(config.MODEL_SAVE_PATH)
+    predictions = model.predict(test_ds)
     return 1
 
 def steps_with_test_split(data, labels):
