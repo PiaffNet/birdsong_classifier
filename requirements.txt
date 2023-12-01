@@ -10,3 +10,6 @@ audiomentations
 yaml
 h5py
 sklearn
+fastapi
+unicorn
+httpx
