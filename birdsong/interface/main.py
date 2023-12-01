@@ -1,14 +1,13 @@
 """
 This is the main file for the birdsong_classifier project.
 """
-from birdsong.model.transform import transfrom, get_labels
-from birdsong.audiotransform.preprocessing import preprocess_data
+from birdsong.config import config
 from birdsong.model.model import initialize_model, compile_model, train_model, evaluate_model
 from birdsong.model.transform import get_train_data_set, get_validation_test_data_sets
-from birdsong.config import config
 from birdsong.audiotransform.to_image import AudioPreprocessor
 from birdsong.model.transform import get_train_data_set, get_validation_test_data_sets
-from birdsong.model.model import initialize_model, compile_model, train_model, evaluate_model, save_model,load_model
+from birdsong.model.model import initialize_model, compile_model, train_model,\
+                                 evaluate_model, save_model,load_model,predict_model
 from birdsong.utils import read_prediction
 
 def preprocess_and_train():
@@ -18,9 +17,10 @@ def preprocess_and_train():
 
     try:
         res_prep = preprocess()
-        if res_prep==1:
-            res = train()
-            print(" preprocess and train done")
+        if res_prep == 1:
+            res, history, prediction_df = train()
+            if res == 1:
+                print(" preprocess and train done")
 
     except Exception:
             print(f"Fatal error : {str(Exception)}")
@@ -60,49 +60,17 @@ def train():
     print("Training loss {metrics[0]} accuracy {metrics[1]}")
     save_model(model, config.MODEL_SAVE_PATH)
 
-    return 1
+    predictions = model.predict(test_ds)
+    predictions_df = read_prediction(predictions, class_names)
 
-def predict():
+    return 1, history, predictions_df
+
+def predict(data_to_predict):
     print('Predicting...')
 
     model = load_model(config.MODEL_SAVE_PATH)
-    predictions = model.predict(test_ds)
-    return 1
-
-def steps_with_test_split(data, labels):
-
-    X_train, X_test, y_train, y_test = train_validation_split(data,
-                                                            labels,
-                                                            test_size=config.TEST_SIZE)
-
-    X_train, X_val, y_train, y_val = train_validation_split(X_train,
-                                                          y_train,
-                                                          test_size=config.TEST_SIZE)
-
-def steps_without_test_split(data, labels):
-    X_train, X_val, y_train, y_val = train_validation_split(data,
-                                                          labels,
-                                                          test_size=config.TEST_SIZE)
-
-    # Preprocess the data
-    X_train_processed = preprocess_data(X_train)
-    X_val_processed = preprocess_data(X_val)
-
-    model = initialize_model(input_shape=X_train_processed.shape[1:],
-                                 num_classes=len(np.unique(y_train)))
-
-    model = compile_model(model)
-
-    model, history = train_model(model,
-                                X_train_processed,
-                                y_train,
-                                batch_size=config.BATCH_SIZE,
-                                epochs=config.EPOCHS,
-                                patience=config.PATIENCE,
-                                validation_data=(X_val_processed, y_val))
-
-    # save the model
-
+    predictions = predict_model(model, data_to_predict)
+    return 1, predictions
 
 if __name__ == '__main__':
     try:

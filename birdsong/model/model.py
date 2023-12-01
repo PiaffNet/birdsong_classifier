@@ -3,6 +3,7 @@ this file contains the functions / class
 describing the Deep Learning mmodels used in the classification
 """
 import os
+import numpy as np
 from typing import Tuple
 from tensorflow.keras import Model
 from tensorflow.keras.models import load_model
@@ -10,7 +11,8 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from birdsong.config import config
 from model_collections import get_model_architecture
-from birdsong.utils import create_folder_if_not_exists,
+from birdsong.utils import create_folder_if_not_exists
+from birdsong.audiotransform.to_image import AudioPreprocessor
 
 def initialize_model(model_call_label : str, input_shape: tuple, num_classes: int)-> Model:
     """
@@ -82,8 +84,11 @@ def load_model(model_path):
     model = load_model(model_path)
     return model
 
-def predict_model(model, test_data):
-    predictions = model.predict(test_data)
+def predict_model(model, data_to_predict):
+    audio_processor = AudioPreprocessor()
+    signal_processed = audio_processor.preprocess_audio_array(data_to_predict)
+    signal_tensor = np.expand_dims(signal_processed, axis=0)
+    predictions = model.predict(signal_tensor)
     return predictions
 
 def save_model_checkpoints(checkpoint_folder_path, save_freq ='epoch'):
