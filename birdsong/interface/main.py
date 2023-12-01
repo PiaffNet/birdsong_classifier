@@ -44,12 +44,14 @@ def train():
     class_names = train_ds.class_names
     num_classes = len(class_names)
 
-    print("find {num_classes} in train data set")
+    print(f"find {num_classes} in train data set")
 
     model = initialize_model(model_call_label=config.MODEL_NAME,
                              input_shape=(64, 376, 1),
                              num_classes=num_classes)
     model = compile_model(model)
+
+    print(model.summary())
 
     model, history = train_model(model=model,
                                  train_data=train_ds,
@@ -58,23 +60,24 @@ def train():
     metrics = evaluate_model(model=model, test_data=test_ds)
 
     print(f"Training loss {metrics[0]} accuracy {metrics[1]}")
-    save_model(model, config.MODEL_SAVE_PATH)
+    save_model(model)
 
     predictions = model.predict(test_ds)
     predictions_df = read_prediction(predictions, class_names)
 
     return 1, history, predictions_df
 
+
 def predict(data_to_predict):
     print('Predicting...')
 
-    model = load_model(config.MODEL_SAVE_PATH)
+    model = load_model()
     predictions = predict_model(model, data_to_predict)
     return 1, predictions
 
 if __name__ == '__main__':
     try:
-        preprocess()
+        #preprocess()
         train()
-    except:
-        print("Error")
+    except Exception:
+        print(f"❌ Error {str(Exception)}")

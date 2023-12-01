@@ -2,19 +2,25 @@
 This file contains methods used to transform the data
 before preprocessing.
 """
+import os
 import numpy as np
 from tensorflow.keras.utils import to_categorical, image_dataset_from_directory
 from tensorflow.data.experimental import cardinality
 from birdsong.config import config
 from birdsong.utils import get_folders_labels, get_classes_labels_dict
+from birdsong.audiotransform.to_image import AudioPreprocessor
 
 
 def get_train_data_set():
+
+    processed_info = AudioPreprocessor()
     IMAGE_SIZE = (64, 376)
     SHUFLE_VALUE = True
 
+
+
     train_ds = image_dataset_from_directory(
-                            config.OUPTUT_FOLDER_PATH,
+                            processed_info.output_folder,
                             validation_split=config.VALIDATION_SPLIT,
                             subset="training",
                             seed=config.RANDOM_SEED,
@@ -25,10 +31,12 @@ def get_train_data_set():
     return train_ds
 
 def get_validation_test_data_sets():
+
+    processed_info = AudioPreprocessor()
     IMAGE_SIZE = (64, 376)
     SHUFLE_VALUE = True
     val_ds = image_dataset_from_directory(
-                            config.OUPTUT_FOLDER_PATH,
+                            processed_info.output_folder,
                             validation_split=config.VALIDATION_SPLIT,
                             subset="validation",
                             seed=config.RANDOM_SEED,
