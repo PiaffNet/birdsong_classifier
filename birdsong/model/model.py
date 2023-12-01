@@ -6,11 +6,11 @@ import os
 import numpy as np
 from typing import Tuple
 from tensorflow.keras import Model
-from tensorflow.keras.models import load_model, load_weights
+from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from birdsong.config import config
-from model_collections import get_model_architecture
+from birdsong.model.model_collections import get_model_architecture
 from birdsong.utils import create_folder_if_not_exists
 from birdsong.audiotransform.to_image import AudioPreprocessor
 
