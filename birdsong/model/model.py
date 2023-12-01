@@ -6,7 +6,7 @@ import os
 import numpy as np
 from typing import Tuple
 from tensorflow.keras import Model
-from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model, load_weights
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from birdsong.config import config
@@ -62,6 +62,31 @@ def train_model(model: Model,
     print("Model trained")
     return model, history
 
+def continue_training_model(path : str, from_checkpoint : bool , model_name : str = None):
+
+    '''
+    retrain a model either from a model or a checkpoint's weights.
+
+    IF 'from_checkpoint' --> True : 'path' must be to checkpoint folder and
+    model_name must be one the available models in model_collections.py.
+
+    ELSE 'from_checkpoint' --> False : 'path' must be to model and model_name can be empty
+
+    '''
+
+    if from_checkpoint:
+        checkpoint_path = os.path.join(path,"cp-best.ckpt")
+        model = compile_model(initialize_model(model_name))
+        model.load_weights(checkpoint_path)
+        model, history = train_model(model)
+
+    else :
+        model = load_model(path)
+        model, history = train_model(model)
+
+    return model, history
+
+
 def evaluate_model(model: Model,
                    test_data)-> Tuple[Model, dict]:
     """
@@ -94,13 +119,14 @@ def predict_model(model, data_to_predict):
 def save_model_checkpoints(checkpoint_folder_path, save_freq ='epoch'):
 
     # Include the epoch in the file name (uses `str.format`)
-    checkpoint_path = os.path.join(checkpoint_folder_path,"cp-{epoch:04d}.ckpt")
+    checkpoint_path = os.path.join(checkpoint_folder_path,"cp-best.ckpt")
 
-    # Create a callback that saves the model's weights every 5 epochs
+    # Create a callback that saves the model's weights every epoch and keeps only the best one
     cp_callback = ModelCheckpoint(
          filepath=checkpoint_path,
          verbose=1,
          save_weights_only=True,
-         save_freq= save_freq)
+         save_freq= save_freq, save_best_only = True,
+         monitor ='val_loss', mode = 'min')
 
     return cp_callback
