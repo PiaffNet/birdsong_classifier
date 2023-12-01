@@ -58,7 +58,7 @@ def train():
     metrics = evaluate_model(model=model, test_data=test_ds)
 
     print(f"Training loss {metrics[0]} accuracy {metrics[1]}")
-    save_model(model, config.MODEL_SAVE_PATH)
+    save_model(model)
 
     predictions = model.predict(test_ds)
     predictions_df = read_prediction(predictions, class_names)
@@ -68,7 +68,7 @@ def train():
 def predict(data_to_predict):
     print('Predicting...')
 
-    model = load_model(config.MODEL_SAVE_PATH)
+    model = load_model()
     predictions = predict_model(model, data_to_predict)
     return 1, predictions
 

@@ -13,6 +13,7 @@ from birdsong.config import config
 from birdsong.model.model_collections import get_model_architecture
 from birdsong.utils import create_folder_if_not_exists
 from birdsong.audiotransform.to_image import AudioPreprocessor
+from birdsong import BASE_PATH
 
 def initialize_model(model_call_label : str, input_shape: tuple, num_classes: int)-> Model:
     """
@@ -44,9 +45,10 @@ def train_model(model: Model,
                        verbose=1,
                        patience=config.PATIENCE)
     # Create a callback that saves the model's weights
-    create_folder_if_not_exists(config.CHECKPOINT_FOLDER_PATH)
+    checkpoint_dir = os.path.join(BASE_PATH,config.CHECKPOINT_FOLDER_PATH)
+    create_folder_if_not_exists(checkpoint_dir)
 
-    cp_callback = save_model_checkpoints(config.CHECKPOINT_FOLDER_PATH)
+    cp_callback = save_model_checkpoints(checkpoint_dir)
 
     #override epocs number
     if config.EPOCHS:
@@ -101,12 +103,14 @@ def evaluate_model(model: Model,
     print("Model evaluated")
     return metrics
 
-def save_model(model, save_path, save_format='h5'):
-    model.save(save_path, save_format=save_format)
-    print(f"model saved in {save_path}")
+def save_model(model, save_format='h5'):
+    model_save_dir = os.path.join(BASE_PATH,config.MODEL_SAVE_PATH)
+    model.save(model_save_dir, save_format=save_format)
+    print(f"model saved in {model_save_dir}")
 
-def load_model(model_path):
-    model = load_model(model_path)
+def load_model():
+    model_save_dir = os.path.join(BASE_PATH,config.MODEL_SAVE_PATH)
+    model = load_model(model_save_dir)
     return model
 
 def predict_model(model, data_to_predict):

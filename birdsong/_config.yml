@@ -1,8 +1,9 @@
 # data load parameters
+MODEL_TARGET : 'local' #to move in .env
 OUTPUT_FORMAT : 'png'
 SPECTOGRAM_TYPE : 'MEL'
-DATA_INPUT_FOLDER : '$YOUR_PATH_TO_DATA_FOLDER'
-DATA_OUTPUT_FOLDER : '$YOUR_PATH_TO_DATA_FOLDER'
+DATA_INPUT_FOLDER : 'raw_data/images_png/'
+DATA_OUTPUT_FOLDER : 'raw_data/images_train_test/'
 
 # NN parameters
 MODEL_NAME : 'baseline_archi_1'
@@ -12,7 +13,7 @@ RANDOM_SEED : 42
 VALIDATION_SPLIT: 0.3
 TEST_SIZE_PART : 1
 BATCH_SIZE : 32
-LEARNING_RATE : 0.001
+LEARNING_RATE : 0.0001
 PATIENCE : 5 #EarlyStopping
 
 # sound augmenter encoders variables
