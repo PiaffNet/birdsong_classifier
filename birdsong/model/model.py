@@ -13,7 +13,7 @@ from birdsong.config import config
 from birdsong.model.model_collections import get_model_architecture
 from birdsong.utils import create_folder_if_not_exists
 from birdsong.audiotransform.to_image import AudioPreprocessor
-from birdsong import BASE_PATH
+from birdsong import PARENT_BASE_PATH
 
 def initialize_model(model_call_label : str, input_shape: tuple, num_classes: int)-> Model:
     """
@@ -30,7 +30,7 @@ def compile_model(model: Model)-> Model:
     model.compile(optimizer=Adam(learning_rate=config.LEARNING_RATE),
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
-    print("Model compiled")
+    print("✅ Model compiled")
     return model
 
 def train_model(model: Model,
@@ -40,20 +40,29 @@ def train_model(model: Model,
     """
     Train the model
     """
+    print("Training user selected model...")
+
     es = EarlyStopping(monitor='val_loss',
                        mode='min',
                        verbose=1,
                        patience=config.PATIENCE)
+
+    print("✅ Early stopping callback created")
+
     # Create a callback that saves the model's weights
-    checkpoint_dir = os.path.join(BASE_PATH,config.CHECKPOINT_FOLDER_PATH)
+    checkpoint_dir = os.path.join(PARENT_BASE_PATH,config.CHECKPOINT_FOLDER_PATH)
     create_folder_if_not_exists(checkpoint_dir)
 
     cp_callback = save_model_checkpoints(checkpoint_dir)
+    print("✅ Checkpoint callback created")
 
     #override epocs number
-    if config.EPOCHS:
+    try:
         epochs = config.EPOCHS
+    except:
+        epochs = epochs
 
+    print("epochs number : ", epochs)
     history = model.fit(
         train_data,
         validation_data=validation_data,
@@ -61,10 +70,10 @@ def train_model(model: Model,
         callbacks=[es,cp_callback],
         verbose=1)
 
-    print("Model trained")
+    print("✅ Model trained")
     return model, history
 
-def continue_training_model(path : str, from_checkpoint : bool , model_name : str = None):
+def continue_training_model(path : str, from_checkpoint : bool , model_name : str):
 
     '''
     retrain a model either from a model or a checkpoint's weights.
@@ -77,10 +86,14 @@ def continue_training_model(path : str, from_checkpoint : bool , model_name : st
     '''
 
     if from_checkpoint:
-        checkpoint_path = os.path.join(path,"cp-best.ckpt")
-        model = compile_model(initialize_model(model_name))
-        model.load_weights(checkpoint_path)
-        model, history = train_model(model)
+        try:
+            checkpoint_dir = os.path.join(PARENT_BASE_PATH,config.CHECKPOINT_FOLDER_PATH)
+            checkpoint_path = os.path.join(checkpoint_dir,"cp-best.ckpt")
+            model = compile_model(initialize_model(model_name))
+            model.load_weights(checkpoint_path)
+            model, history = train_model(model)
+        except:
+            raise ValueError("No checkpoint found")
 
     else :
         model = load_model(path)
@@ -100,16 +113,16 @@ def evaluate_model(model: Model,
     metrics  = model.evaluate(test_data,
                               verbose=0,
                               return_dict = True)
-    print("Model evaluated")
+    print("✅ Model evaluated")
     return metrics
 
 def save_model(model, save_format='h5'):
-    model_save_dir = os.path.join(BASE_PATH,config.MODEL_SAVE_PATH)
+    model_save_dir = os.path.join(PARENT_BASE_PATH,config.MODEL_SAVE_PATH)
     model.save(model_save_dir, save_format=save_format)
     print(f"model saved in {model_save_dir}")
 
 def load_model():
-    model_save_dir = os.path.join(BASE_PATH,config.MODEL_SAVE_PATH)
+    model_save_dir = os.path.join(PARENT_BASE_PATH,config.MODEL_SAVE_PATH)
     model = load_model(model_save_dir)
     return model
 

@@ -44,12 +44,14 @@ def train():
     class_names = train_ds.class_names
     num_classes = len(class_names)
 
-    print("find {num_classes} in train data set")
+    print(f"find {num_classes} in train data set")
 
     model = initialize_model(model_call_label=config.MODEL_NAME,
                              input_shape=(64, 376, 1),
                              num_classes=num_classes)
     model = compile_model(model)
+
+    print(model.summary())
 
     model, history = train_model(model=model,
                                  train_data=train_ds,
@@ -65,6 +67,7 @@ def train():
 
     return 1, history, predictions_df
 
+
 def predict(data_to_predict):
     print('Predicting...')
 
@@ -74,7 +77,7 @@ def predict(data_to_predict):
 
 if __name__ == '__main__':
     try:
-        preprocess()
+        #preprocess()
         train()
     except:
         print("Error")

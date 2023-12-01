@@ -7,7 +7,7 @@ import skimage as ski
 from birdsong.config import config
 from birdsong.utils import get_folders_labels, create_folder_if_not_exists
 from birdsong.audiotransform.standardisation import spectrogram_image
-from birdsong import BASE_PATH
+from birdsong import PARENT_BASE_PATH
 
 
 
@@ -98,9 +98,14 @@ class AudioPreprocessor:
 
     @staticmethod
     def get_data_paths():
+        print('compute data folder paths')
         if config.MODEL_TARGET == 'local':
-           input_folder_path = os.path.join(BASE_PATH, config.DATA_INPUT_FOLDER)
-           output_folder = os.path.join(BASE_PATH,config.DATA_OUTPUT_FOLDER)
+           input_folder_path = os.path.join(PARENT_BASE_PATH,
+                                            config.DATA_PERENT_DIR,
+                                            config.DATA_INPUT_FOLDER)
+           output_folder = os.path.join(PARENT_BASE_PATH,
+                                        config.DATA_PERENT_DIR,
+                                        config.DATA_OUTPUT_FOLDER)
            return input_folder_path, output_folder
 
     @staticmethod
