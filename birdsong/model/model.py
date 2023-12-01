@@ -93,7 +93,7 @@ def continue_training_model(path : str, from_checkpoint : bool , model_name : st
             model.load_weights(checkpoint_path)
             model, history = train_model(model)
         except:
-            raise ValueError("No checkpoint found")
+            raise ValueError("❌ No checkpoint found")
 
     else :
         model = load_model(path)

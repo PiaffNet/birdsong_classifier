@@ -36,9 +36,6 @@ class AudioPreprocessor:
         self.spectogram_type = config.SPECTOGRAM_TYPE # specto type 'ndarray' or '.png'
         self.output_format = config.OUTPUT_FORMAT
 
-
-
-
     def create_data(self):
         if self.input_folder:
             subfolder_lists = get_folders_labels(self.input_folder)
@@ -60,7 +57,6 @@ class AudioPreprocessor:
         try:
             # Step 1: transform cleaned audio file into spectogram (ndarray)
             spectogram_array = self.get_spectogram(audio_signal)
-
 
             # Step 2: transform spectogram into image array
             image = spectrogram_image(spectogram_array)
