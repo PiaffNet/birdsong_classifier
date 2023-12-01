@@ -65,7 +65,7 @@ def train_model(model: Model,
 def continue_training_model(path : str, from_checkpoint : bool , model_name : str = None):
 
     '''
-    retrain a model either a model or a checkpoint's weights.
+    retrain a model either from a model or a checkpoint's weights.
 
     IF 'from_checkpoint' --> True : 'path' must be to checkpoint folder and
     model_name must be one the available models in model_collections.py.
