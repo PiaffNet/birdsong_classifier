@@ -13,6 +13,6 @@ run_predict:
 	python -c 'from birdsong.interface.main import predict; predict()'
 
 run_evaluate:
-	python -c 'from birdsong.interface.main import evaluate; evaluate()'
+	python -c 'from birdsong.interface.main import preprocess_and_train; preprocess_and_train()'
 
 #################### TESTS ACTIONS ###################
