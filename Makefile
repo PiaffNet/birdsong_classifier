@@ -12,7 +12,7 @@ run_train:
 run_predict:
 	python -c 'from birdsong.interface.main import predict; predict()'
 
-run_evaluate:
+run_preprocess_and_train:
 	python -c 'from birdsong.interface.main import preprocess_and_train; preprocess_and_train()'
 
 run_api:

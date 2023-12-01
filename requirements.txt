@@ -7,9 +7,12 @@ tensorflow
 librosa
 pydub
 audiomentations
-yaml
+pyyaml
 h5py
+
 sklearn
 fastapi
 uvicorn
 httpx
+scikit-learn
+scikit-image

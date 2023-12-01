@@ -2,7 +2,6 @@ import numpy as np
 from birdsong.config import config
 from audiomentations import Compose, PitchShift, Shift, AddGaussianSNR
 
-
 def transform_signal_add_SNR_noise(signals: np.ndarray, sample_rate: int)-> np.ndarray:
     """
     Add Gaussian noise to the signals
