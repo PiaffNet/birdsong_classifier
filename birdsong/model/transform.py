@@ -4,7 +4,7 @@ before preprocessing.
 """
 import os
 import numpy as np
-from tensorflow import keras
+import tensorflow.keras as keras
 from tensorflow.data.experimental import cardinality
 from birdsong.config import config
 from birdsong.utils import get_folders_labels, get_classes_labels_dict
