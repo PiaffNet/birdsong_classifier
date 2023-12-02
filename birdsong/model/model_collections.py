@@ -2,7 +2,6 @@
 from tensorflow import keras
 from typing import Tuple
 
-
 class CNNsimple():
 
         MODEL_NAME = 'CNNsimple'
@@ -188,11 +187,24 @@ class BirdNetBlock():
 
 def get_model_architecture(model_call : str, num_classes: int, input_shape : tuple) -> keras.Model:
     if model_call == 'baseline_archi_0':
-        model = build_archi_0(num_classes, input_shape)
+        training_model_call = CNNsimple(num_classes=num_classes,
+                              input_shape=input_shape)
+
+        training_model = training_model_call.build_archi_0()
 
     elif model_call == 'baseline_archi_1':
-        model = build_archi_1(num_classes, input_shape)
+        training_model_call = CNNsimple(num_classes=num_classes,
+                              input_shape=input_shape)
+        training_model = training_model_call.build_archi_1()
 
+    elif model_call == 'BirdNetBlock_a':
+        training_model_call = BirdNetBlock(num_classes=num_classes,
+                              input_shape=input_shape)
+        training_model = training_model_call.build_archi_a()
+    elif model_call == 'BirdNetBlock_b':
+        training_model_call = BirdNetBlock(num_classes=num_classes,
+                              input_shape=input_shape)
+        training_model = training_model_call.build_archi_b()
     else:
         raise NotImplementedError
-    return model
+    return training_model
