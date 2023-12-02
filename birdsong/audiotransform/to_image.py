@@ -17,18 +17,17 @@ def select_species_per_country(df, country="France"):
     df_clean = (df[df["species"].isin(species_fr)])[USEFUL_FEATS]
     return df_clean
 
-""" Convert audio file to single channel (mono) and standard sample rate (48k)
-    --> takes input folder containing raw audio files and creates new output folder
-    --> specifies target sample rate (48k Hz) and nb of channels (mono by default)
-    --> iterates through all audio files, applies preprocessing and saves to new folder
-    --> TBD: creates a spectogram for all preprocessed audio files
-
-    - `Input` and `output` folders are paths that need to be specified when method is called
-"""
-
 # Note: by default in librosa, all audio is mixed to mono and resampled to 22050 Hz at load time
 
 class AudioPreprocessor:
+    """ Convert audio file to single channel (mono) and standard sample rate (48k)
+    --> takes input folder containing raw audio files and creates new output folder
+    --> specifies target sample rate (48k Hz) and nb of channels (mono by default)
+    --> iterates through all audio files, applies preprocessing and saves to new folder
+    --> creates a spectogram for all preprocessed audio files
+
+    - `Input` and `output` folders are paths that need to be specified when method is called
+    """
     def __init__(self):
         input_folder_path, output_folder = self.get_data_paths()
         self.input_folder = input_folder_path

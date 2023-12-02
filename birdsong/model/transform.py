@@ -4,7 +4,7 @@ before preprocessing.
 """
 import os
 import numpy as np
-from tensorflow.keras.utils import to_categorical, image_dataset_from_directory
+from tensorflow import keras
 from tensorflow.data.experimental import cardinality
 from birdsong.config import config
 from birdsong.utils import get_folders_labels, get_classes_labels_dict
@@ -19,7 +19,7 @@ def get_train_data_set():
 
 
 
-    train_ds = image_dataset_from_directory(
+    train_ds = keras.utils.image_dataset_from_directory(
                             processed_info.output_folder,
                             validation_split=config.VALIDATION_SPLIT,
                             subset="training",
@@ -35,7 +35,7 @@ def get_validation_test_data_sets():
     processed_info = AudioPreprocessor()
     IMAGE_SIZE = (64, 376)
     SHUFLE_VALUE = True
-    val_ds = image_dataset_from_directory(
+    val_ds = keras.utils.image_dataset_from_directory(
                             processed_info.output_folder,
                             validation_split=config.VALIDATION_SPLIT,
                             subset="validation",
@@ -57,4 +57,4 @@ def get_labels(folders_path: str)-> np.ndarray:
     folders_labels = get_folders_labels(folders_path)
     classes_labels_numeric = list(get_classes_labels_dict(folders_labels).values())
     classes_labels_numeric_clean = list(set(classes_labels_numeric))
-    return to_categorical(classes_labels_numeric_clean ,len(classes_labels_numeric_clean))
+    return keras.utils.to_categorical(classes_labels_numeric_clean ,len(classes_labels_numeric_clean))

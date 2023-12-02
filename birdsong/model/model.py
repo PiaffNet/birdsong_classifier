@@ -3,19 +3,18 @@ this file contains the functions / class
 describing the Deep Learning mmodels used in the classification
 """
 import os
+import time
+import glob
 import numpy as np
 from typing import Tuple
-from tensorflow.keras import Model
-from tensorflow.keras.models import load_model
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow import keras
 from birdsong.config import config
 from birdsong.model.model_collections import get_model_architecture
 from birdsong.utils import create_folder_if_not_exists
 from birdsong.audiotransform.to_image import AudioPreprocessor
 from birdsong import PARENT_BASE_PATH
 
-def initialize_model(model_call_label : str, input_shape: tuple, num_classes: int)-> Model:
+def initialize_model(model_call_label : str, input_shape: tuple, num_classes: int)-> keras.Model:
     """
     Initialize the model
     """
@@ -23,26 +22,27 @@ def initialize_model(model_call_label : str, input_shape: tuple, num_classes: in
 
     return model
 
-def compile_model(model: Model)-> Model:
+def compile_model(model: keras.Model)-> keras.Model:
     """
     Compile the model
     """
-    model.compile(optimizer=Adam(learning_rate=config.LEARNING_RATE),
+    adam = keras.optimizers.Adam(learning_rate=config.LEARNING_RATE)
+    model.compile(optimizer=adam,
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
     print("✅ Model compiled")
     return model
 
-def train_model(model: Model,
+def train_model(model: keras.Model,
                 train_data,
                 validation_data,
-                epochs=1000)-> Tuple[Model, dict]:
+                epochs=1000)-> Tuple[keras.Model, dict]:
     """
     Train the model
     """
     print("Training user selected model...")
 
-    es = EarlyStopping(monitor='val_loss',
+    es = keras.callbacks.EarlyStopping(monitor='val_loss',
                        mode='min',
                        verbose=1,
                        patience=config.PATIENCE)
@@ -102,13 +102,13 @@ def continue_training_model(path : str, from_checkpoint : bool , model_name : st
     return model, history
 
 
-def evaluate_model(model: Model,
-                   test_data)-> Tuple[Model, dict]:
+def evaluate_model(model: keras.Model,
+                   test_data)-> Tuple[keras.Model, dict]:
     """
     Evaluate the model
     """
     if model is None:
-        raise ValueError(" No model to evaluate.")
+        raise ValueError("❌ No model to evaluate !")
 
     metrics  = model.evaluate(test_data,
                               verbose=0,
@@ -116,17 +116,52 @@ def evaluate_model(model: Model,
     print("✅ Model evaluated")
     return metrics
 
-def save_model(model, save_format='h5'):
+def save_model(model: keras.Model = None) -> None:
+    """
+    Persist trained model locally on the hard drive at f"{LOCAL_REGISTRY_PATH}/models/{timestamp}.h5"
+    """
     model_save_dir = os.path.join(PARENT_BASE_PATH,config.MODEL_SAVE_PATH)
-    model.save(model_save_dir, save_format=save_format)
-    print(f"model saved in {model_save_dir}")
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
 
-def load_model():
-    model_save_dir = os.path.join(PARENT_BASE_PATH,config.MODEL_SAVE_PATH)
-    model = load_model(model_save_dir)
-    return model
+    # Save model locally
+    model_path = os.path.join(model_save_dir, f"{timestamp}.h5")
+    model.save(model_path)
 
-def predict_model(model, data_to_predict):
+    print("✅ Model saved locally")
+    return None
+
+def load_model()-> keras.Model:
+    """
+    Return a saved model:
+    - locally (latest one in alphabetical order)
+    Return None (but do not Raise) if no model is found
+
+    """
+    if config.MODEL_TARGET == "local":
+
+        print(f"\nLoad latest model from local registry...")
+
+        model_save_dir = os.path.join(PARENT_BASE_PATH,config.MODEL_SAVE_PATH)
+
+        # Get the latest model version name by the timestamp on disk
+        local_model_paths = glob.glob(f"{model_save_dir}/*")
+
+        if not local_model_paths:
+            return None
+
+        most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
+
+        print(f"\nLoad latest model from disk...")
+
+        latest_model = keras.models.load_model(most_recent_model_path_on_disk)
+
+        print("✅ Model loaded from local disk")
+
+        return latest_model
+    else:
+        return None
+
+def predict_model(model: keras.Model, data_to_predict):
     audio_processor = AudioPreprocessor()
     signal_processed = audio_processor.preprocess_audio_array(data_to_predict)
     signal_tensor = np.expand_dims(signal_processed, axis=0)
@@ -136,10 +171,10 @@ def predict_model(model, data_to_predict):
 def save_model_checkpoints(checkpoint_folder_path, save_freq ='epoch'):
 
     # Include the epoch in the file name (uses `str.format`)
-    checkpoint_path = os.path.join(checkpoint_folder_path,"cp-best.ckpt")
+    checkpoint_path = os.path.join(checkpoint_folder_path, config.MODEL_NAME,"cp-best.ckpt")
 
     # Create a callback that saves the model's weights every epoch and keeps only the best one
-    cp_callback = ModelCheckpoint(
+    cp_callback = keras.callbacks.ModelCheckpoint(
          filepath=checkpoint_path,
          verbose=1,
          save_weights_only=True,

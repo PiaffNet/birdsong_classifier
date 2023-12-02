@@ -57,10 +57,11 @@ def train():
                                  train_data=train_ds,
                                  validation_data=val_ds)
 
+    save_model(model)
     metrics = evaluate_model(model=model, test_data=test_ds)
 
-    print(f"Training loss {metrics[0]} accuracy {metrics[1]}")
-    save_model(model)
+    print(f"Training loss {metrics[model.metrics_names[0]]} accuracy {metrics[model.metrics_names[1]]}")
+
 
     predictions = model.predict(test_ds)
     predictions_df = read_prediction(predictions, class_names)
