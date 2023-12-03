@@ -41,4 +41,3 @@ WINDOW_TYPE: 'hann'
 FEATURE: 'mel'
 F_MIN: 150 #Hz
 F_MAX: 15000 #Hz
-HTK: 1750 #break frequency

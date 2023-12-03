@@ -41,18 +41,6 @@ def get_classes_labels_dict(folders_labels:list)->dict:
     return {label: i for i, label in enumerate(folders_labels)}
 
 
-def train_validation_split(data:np.ndarray,
-                     labels:np.ndarray,
-                     test_size:float)->Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Split the data into train and test sets
-    """
-    data_train = None
-    labels_train = None
-    data_val = None
-    labels_val = None
-
-    return data_train, labels_train, data_val, labels_val
 
 def read_prediction(model_predictions: np.ndarray, class_names)->pd.DataFrame:
     (n_rows, n_columns) = model_predictions.shape
