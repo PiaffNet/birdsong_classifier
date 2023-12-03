@@ -16,7 +16,10 @@ def slicer(directory : str, newdir : str, silence_intolerance : int = 6 ) -> Non
         - newdir : str -> path to the copied data, will reconstruct the architecture of the original directory with silence and too_small added
         - silence_intolerance : int -> the higher the number the less likely a sample is to be considered silent
 
-    '''
+    TODO:
+      - define as a class
+      - do not forget delete "too_small" directory after the slicing process
+     '''
     df = pd.read_csv("raw_data/train.csv")
 
     for dirspecies in os.listdir(directory):

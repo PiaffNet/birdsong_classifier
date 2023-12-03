@@ -1,16 +1,15 @@
 # data load parameters
-MODEL_TARGET : 'local' #to move in .env
-OUTPUT_FORMAT : 'png'
-SPECTOGRAM_TYPE : 'MEL'
-DATA_PERENT_DIR : 'raw_data'
-DATA_INPUT_FOLDER : 'split_data'
-DATA_OUTPUT_FOLDER : 'images_png'
+MODEL_TARGET : "local" #to move in .env
+OUTPUT_FORMAT : "png"
+SPECTOGRAM_TYPE : "MEL"
+DATA_PERENT_DIR : "raw_data"
+DATA_INPUT_FOLDER : "split_data"
+DATA_OUTPUT_FOLDER : "images_png"
 
 # NN parameters
-EPOCHS : 2
-MODEL_NAME : 'baseline_archi_0' # you can choose between ['baseline_archi_0','baseline_archi_1','BirdNetBlock_a','BirdNetBlock_b']
-MODEL_SAVE_PATH: 'model_save'
-CHECKPOINT_FOLDER_PATH: 'model_checkpoints'
+MODEL_NAME : 'baseline_archi_1' # you can choose between ["baseline_archi_0","baseline_archi_1","BirdNetBlock_a","BirdNetBlock_b"]
+MODEL_SAVE_PATH: "model_save"
+CHECKPOINT_FOLDER_PATH: "model_checkpoints"
 RANDOM_SEED : 42
 VALIDATION_SPLIT: 0.3
 TEST_SIZE_PART : 1
@@ -38,7 +37,7 @@ STFT_NUMBER_SAMPLES: 512
 HOP_OVERLAP: 0.25
 N_MELS: 64 #mel scale with 64 bands
 HTK: 1750 #break frequency
-WINDOW_TYPE: 'hann'
-FEATURE: 'mel'
+WINDOW_TYPE: "hann"
+FEATURE: "mel"
 F_MIN: 150 #Hz
 F_MAX: 15000 #Hz

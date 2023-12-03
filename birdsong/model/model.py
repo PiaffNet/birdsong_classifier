@@ -20,6 +20,9 @@ def save_history(object_history):
     """Save the train history as a csv file
     """
     print('Saving model train history...')
+    create_folder_if_not_exists(os.path.join(PARENT_BASE_PATH,
+                                 config.MODEL_SAVE_PATH,
+                                 config.MODEL_NAME))
     hist_csv_file = os.path.join(PARENT_BASE_PATH,
                                  config.MODEL_SAVE_PATH,
                                  config.MODEL_NAME,
@@ -37,7 +40,9 @@ def initialize_model(model_call_label : str, num_classes: int):
     print('Initializing model...')
     processed_info = AudioPreprocessor()
     (n_rows,n_columns) = processed_info.get_image_sample_shape()
-    num_classes = processed_info.get_image_sample_shape()
+
+    print(f"model input shape : {(n_rows,n_columns,1)}")
+    print(f"model output is {num_classes} classes")
 
     model = get_model_architecture(model_call_label, num_classes,
                                    input_shape=(n_rows,n_columns,1))
@@ -116,6 +121,7 @@ def save_model(model: keras.Model = None) -> None:
     Persist trained model locally on the hard drive at f"{LOCAL_REGISTRY_PATH}/models/{timestamp}.h5"
     """
     model_save_dir = os.path.join(PARENT_BASE_PATH, config.MODEL_SAVE_PATH, config.MODEL_NAME)
+    create_folder_if_not_exists(model_save_dir)
     timestamp = time.strftime("%Y%m%d-%H%M%S")
 
     # Save model locally
@@ -167,7 +173,7 @@ def save_model_checkpoints(checkpoint_folder_path, save_freq ='epoch'):
 
     # Include the epoch in the file name (uses `str.format`)
     checkpoint_path = os.path.join(checkpoint_folder_path, config.MODEL_NAME,"cp-best.ckpt")
-
+    create_folder_if_not_exists(os.path.join(checkpoint_folder_path, config.MODEL_NAME))
     # Create a callback that saves the model's weights every epoch and keeps only the best one
     cp_callback = keras.callbacks.ModelCheckpoint(
          filepath=checkpoint_path,
