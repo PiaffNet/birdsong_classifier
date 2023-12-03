@@ -33,6 +33,7 @@ class AudioPreprocessor:
         self.spectogram_type = config.SPECTOGRAM_TYPE # specto type 'ndarray' or '.png'
         self.output_format = config.OUTPUT_FORMAT
         self.image_shape = None
+        self.nb_classes = None
 
     def create_data(self):
         if self.input_folder:
@@ -50,6 +51,7 @@ class AudioPreprocessor:
                     print("❌ No valid output folder specified by user")
 
             self.image_shape = self.get_image_sample_shape()
+            self.nb_classes = self.get_nb_classes()
         else:
             print("❌ No valid input folder specified by user")
 
@@ -64,6 +66,13 @@ class AudioPreprocessor:
             return get_image_shape(sample_list[0])
         else:
             return self.image_shape
+
+    def get_nb_classes(self):
+        if self.nb_classes == None:
+            subfolder_lists = get_folders_labels(self.output_folder)
+            return len(subfolder_lists)
+        else:
+            return self.nb_classes
 
     def preprocess_audio_array(self, audio_signal):
         try:
@@ -146,6 +155,7 @@ class AudioPreprocessor:
         if self.output_format == 'npy':
            # Step 3: save preprocessed file to output (sub)
            np.save(target_path, spectogram_array)
+
 
 
 #mel = sound_to_image(filepath)

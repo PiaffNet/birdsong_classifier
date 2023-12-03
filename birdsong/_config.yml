@@ -7,6 +7,7 @@ DATA_INPUT_FOLDER : 'split_data'
 DATA_OUTPUT_FOLDER : 'images_png'
 
 # NN parameters
+EPOCHS : 2
 MODEL_NAME : 'baseline_archi_0' # you can choose between ['baseline_archi_0','baseline_archi_1','BirdNetBlock_a','BirdNetBlock_b']
 MODEL_SAVE_PATH: 'model_save'
 CHECKPOINT_FOLDER_PATH: 'model_checkpoints'

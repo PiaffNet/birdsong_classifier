@@ -6,15 +6,6 @@ from typing import Tuple
 from tabulate import tabulate
 
 
-def save_train_history_as_csv(history: dict, path)->None:
-    """
-    Save the train history as a csv file
-    """
-    df = pd.DataFrame(history)
-    df.to_csv(path, index=False)
-    return None
-
-
 def get_image_shape(image_path:str):
     """simple function to get the image size"""
     image = Image.open(image_path)

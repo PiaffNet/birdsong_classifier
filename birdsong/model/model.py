@@ -6,30 +6,41 @@ import os
 import time
 import glob
 import numpy as np
+import pandas as pd
 from typing import Tuple
 from tensorflow import keras
 from birdsong.config import config
 from birdsong.model.model_collections import get_model_architecture
 from birdsong.utils import create_folder_if_not_exists
 from birdsong.audiotransform.to_image import AudioPreprocessor
-from birdsong.utils import save_train_history_as_csv
 from birdsong import PARENT_BASE_PATH
 
 
-def save_history(history: dict):
+def save_history(object_history):
     """Save the train history as a csv file
     """
-    file_path = os.path.join(config.MODEL_SAVE_PATH, config.MODEL_NAME, "history.csv")
-    save_train_history_as_csv(history, file_path)
-    print(f"✅ Model train history saved in csv {file_path}")
+    print('Saving model train history...')
+    hist_csv_file = os.path.join(PARENT_BASE_PATH,
+                                 config.MODEL_SAVE_PATH,
+                                 config.MODEL_NAME,
+                                 'history_log.csv')
+    hist_df = pd.DataFrame(object_history.history)
+    with open(hist_csv_file, mode='w') as f:
+        hist_df.to_csv(f)
+    print(f"✅ Model train history saved in csv {hist_csv_file}")
     return None
 
-def initialize_model(model_call_label : str, input_shape: tuple, num_classes: int):
+def initialize_model(model_call_label : str, num_classes: int):
     """
     Initialize the model
     """
     print('Initializing model...')
-    model = get_model_architecture(model_call_label, num_classes, input_shape)
+    processed_info = AudioPreprocessor()
+    (n_rows,n_columns) = processed_info.get_image_sample_shape()
+    num_classes = processed_info.get_image_sample_shape()
+
+    model = get_model_architecture(model_call_label, num_classes,
+                                   input_shape=(n_rows,n_columns,1))
 
     print(f"✅ Model {model_call_label} initialized")
     return model
@@ -82,37 +93,9 @@ def train_model(model: keras.Model,
         callbacks=[es,cp_callback],
         verbose=1)
 
+    save_history(history)
     print("✅ Model trained")
     return model, history
-
-def continue_training_model(path : str, from_checkpoint : bool , model_name : str):
-
-    '''
-    retrain a model either from a model or a checkpoint's weights.
-
-    IF 'from_checkpoint' --> True : 'path' must be to checkpoint folder and
-    model_name must be one the available models in model_collections.py.
-
-    ELSE 'from_checkpoint' --> False : 'path' must be to model and model_name can be empty
-
-    '''
-
-    if from_checkpoint:
-        try:
-            checkpoint_dir = os.path.join(PARENT_BASE_PATH,config.CHECKPOINT_FOLDER_PATH)
-            checkpoint_path = os.path.join(checkpoint_dir,"cp-best.ckpt")
-            model = compile_model(initialize_model(model_name))
-            model.load_weights(checkpoint_path)
-            model, history = train_model(model)
-        except:
-            raise ValueError("❌ No checkpoint found")
-
-    else :
-        model = load_model(path)
-        model, history = train_model(model)
-
-    return model, history
-
 
 def evaluate_model(model: keras.Model,
                    test_data)-> Tuple[keras.Model, dict]:
@@ -194,3 +177,10 @@ def save_model_checkpoints(checkpoint_folder_path, save_freq ='epoch'):
          monitor ='val_loss', mode = 'min')
 
     return cp_callback
+
+def model_get_from_checkpoint(model_name, len_class_names):
+    checkpoint_dir = os.path.join(PARENT_BASE_PATH,config.CHECKPOINT_FOLDER_PATH)
+    checkpoint_path = os.path.join(checkpoint_dir,"cp-best.ckpt")
+    model = compile_model(initialize_model(model_name, len_class_names))
+    model.load_weights(checkpoint_path)
+    return model
