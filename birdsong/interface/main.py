@@ -7,7 +7,7 @@ from birdsong.model.transform import get_train_data_set, get_validation_test_dat
 from birdsong.audiotransform.to_image import AudioPreprocessor
 from birdsong.model.transform import get_train_data_set, get_validation_test_data_sets
 from birdsong.model.model import initialize_model, compile_model, train_model,\
-                                 evaluate_model, save_model,load_model,predict_model
+                                 evaluate_model, save_model,load_model,predict_model, save_history
 from birdsong.utils import read_prediction
 
 def preprocess_and_train():
@@ -18,9 +18,9 @@ def preprocess_and_train():
     try:
         res_prep = preprocess()
         if res_prep == 1:
-            res, history, prediction_df = train()
+            res, prediction_df = train()
             if res == 1:
-                print(" preprocess and train done")
+                print("✅ preprocess and train done")
 
     except Exception:
             print(f"Fatal error : {str(Exception)}")
@@ -57,6 +57,7 @@ def train():
                                  train_data=train_ds,
                                  validation_data=val_ds)
 
+    #save_history(history.history)
     save_model(model)
     metrics = evaluate_model(model=model, test_data=test_ds)
 
@@ -66,7 +67,7 @@ def train():
     predictions = model.predict(test_ds)
     predictions_df = read_prediction(predictions, class_names)
 
-    return 1, history, predictions_df
+    return 1, predictions_df
 
 
 def predict(data_to_predict):

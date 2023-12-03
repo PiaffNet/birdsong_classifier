@@ -4,18 +4,17 @@ OUTPUT_FORMAT : 'png'
 SPECTOGRAM_TYPE : 'MEL'
 DATA_PERENT_DIR : 'raw_data'
 DATA_INPUT_FOLDER : 'split_data'
-DATA_OUTPUT_FOLDER : 'images_train_test'
+DATA_OUTPUT_FOLDER : 'images_png'
 
 # NN parameters
-EPOCHS : 2
-MODEL_NAME : 'baseline_archi_1'
+MODEL_NAME : 'baseline_archi_0' # you can choose between ['baseline_archi_0','baseline_archi_1','BirdNetBlock_a','BirdNetBlock_b']
 MODEL_SAVE_PATH: 'model_save'
 CHECKPOINT_FOLDER_PATH: 'model_checkpoints'
 RANDOM_SEED : 42
 VALIDATION_SPLIT: 0.3
 TEST_SIZE_PART : 1
 BATCH_SIZE : 32
-LEARNING_RATE : 0.01
+LEARNING_RATE : 0.0005
 PATIENCE : 5 #EarlyStopping
 
 # sound augmenter encoders variables

@@ -1,14 +1,12 @@
 import os
 import glob
 import numpy as np
-import pandas as pd
 import librosa
 import skimage as ski
 from birdsong.config import config
-from birdsong.utils import get_folders_labels, create_folder_if_not_exists
+from birdsong.utils import get_folders_labels, create_folder_if_not_exists, get_image_shape
 from birdsong.audiotransform.standardisation import spectrogram_image
 from birdsong import PARENT_BASE_PATH
-
 
 
 def select_species_per_country(df, country="France"):
@@ -34,6 +32,7 @@ class AudioPreprocessor:
         self.output_folder = output_folder
         self.spectogram_type = config.SPECTOGRAM_TYPE # specto type 'ndarray' or '.png'
         self.output_format = config.OUTPUT_FORMAT
+        self.image_shape = None
 
     def create_data(self):
         if self.input_folder:
@@ -49,8 +48,22 @@ class AudioPreprocessor:
                         self.preprocess_audio(file_path, target_directory)
                 else:
                     print("❌ No valid output folder specified by user")
+
+            self.image_shape = self.get_image_sample_shape()
         else:
             print("❌ No valid input folder specified by user")
+
+    def get_image_sample_shape(self):
+        # grab just an image sample shape
+        if self.image_shape == None:
+
+            subfolder_lists = get_folders_labels(self.output_folder)
+            sample_dir = subfolder_lists[0]
+            target_dir = os.path.join(self.output_folder,sample_dir)
+            sample_list = glob.glob(os.path.join(target_dir,'*.png'))
+            return get_image_shape(sample_list[0])
+        else:
+            return self.image_shape
 
     def preprocess_audio_array(self, audio_signal):
         try:

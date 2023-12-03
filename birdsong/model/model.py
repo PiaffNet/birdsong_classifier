@@ -12,14 +12,26 @@ from birdsong.config import config
 from birdsong.model.model_collections import get_model_architecture
 from birdsong.utils import create_folder_if_not_exists
 from birdsong.audiotransform.to_image import AudioPreprocessor
+from birdsong.utils import save_train_history_as_csv
 from birdsong import PARENT_BASE_PATH
 
-def initialize_model(model_call_label : str, input_shape: tuple, num_classes: int)-> keras.Model:
+
+def save_history(history: dict):
+    """Save the train history as a csv file
+    """
+    file_path = os.path.join(config.MODEL_SAVE_PATH, config.MODEL_NAME, "history.csv")
+    save_train_history_as_csv(history, file_path)
+    print(f"✅ Model train history saved in csv {file_path}")
+    return None
+
+def initialize_model(model_call_label : str, input_shape: tuple, num_classes: int):
     """
     Initialize the model
     """
+    print('Initializing model...')
     model = get_model_architecture(model_call_label, num_classes, input_shape)
 
+    print(f"✅ Model {model_call_label} initialized")
     return model
 
 def compile_model(model: keras.Model)-> keras.Model:
@@ -120,7 +132,7 @@ def save_model(model: keras.Model = None) -> None:
     """
     Persist trained model locally on the hard drive at f"{LOCAL_REGISTRY_PATH}/models/{timestamp}.h5"
     """
-    model_save_dir = os.path.join(PARENT_BASE_PATH,config.MODEL_SAVE_PATH)
+    model_save_dir = os.path.join(PARENT_BASE_PATH, config.MODEL_SAVE_PATH, config.MODEL_NAME)
     timestamp = time.strftime("%Y%m%d-%H%M%S")
 
     # Save model locally
@@ -141,7 +153,7 @@ def load_model()-> keras.Model:
 
         print(f"\nLoad latest model from local registry...")
 
-        model_save_dir = os.path.join(PARENT_BASE_PATH,config.MODEL_SAVE_PATH)
+        model_save_dir = os.path.join(PARENT_BASE_PATH, config.MODEL_SAVE_PATH, config.MODEL_NAME)
 
         # Get the latest model version name by the timestamp on disk
         local_model_paths = glob.glob(f"{model_save_dir}/*")

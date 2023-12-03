@@ -1,13 +1,13 @@
 
 from tensorflow import keras
-from typing import Tuple
+
 
 class CNNsimple():
 
         MODEL_NAME = 'CNNsimple'
         MODEL_TYPE = 'functional'
 
-        def __init__(self,num_classes : int, input_shape=(64, 376, 1)):
+        def __init__(self, num_classes : int, input_shape=(64, 376, 1)):
             self.num_classes = num_classes
             self.input_shape = input_shape
 
@@ -33,23 +33,23 @@ class CNNsimple():
             return model
 
 
-        def build_archi_1(num_classes : int, input_shape=(64, 376, 1)) -> keras.Model:
+        def build_archi_1(self) -> keras.Model:
 
             model = keras.Sequential([
-            keras.layers.Rescaling(1./255, input_shape=input_shape), # (64, 376, 1)
-            keras.layers.Conv2D(64, 2, padding='same', activation='relu'),
-            keras.layers.MaxPooling2D(),
-            keras.layers.Conv2D(64, (2,3), padding='same', activation='relu'),
-            keras.layers.MaxPooling2D(),
-            keras.layers.Conv2D(64, (3,2), padding='same', activation='relu'),
-            keras.layers.MaxPooling2D(),
-            keras.layers.Conv2D(64, 3, padding='same', activation='relu'),
-            keras.layers.Dropout(rate = 0.24),
-            keras.layers.MaxPooling2D(),
-            keras.layers.Flatten(),
-            keras.layers.Dense(1568, activation='relu', kernel_regularizer='l2'),
-            keras.layers.Dense(500, activation='relu'),
-            keras.layers.Dense(num_classes, activation = 'softmax')
+                keras.layers.Rescaling(1./255, input_shape=self.input_shape), # (64, 376, 1)
+                keras.layers.Conv2D(64, 2, padding='same', activation='relu'),
+                keras.layers.MaxPooling2D(),
+                keras.layers.Conv2D(64, (2,3), padding='same', activation='relu'),
+                keras.layers.MaxPooling2D(),
+                keras.layers.Conv2D(64, (3,2), padding='same', activation='relu'),
+                keras.layers.MaxPooling2D(),
+                keras.layers.Conv2D(64, 3, padding='same', activation='relu'),
+                keras.layers.Dropout(rate = 0.24),
+                keras.layers.MaxPooling2D(),
+                keras.layers.Flatten(),
+                keras.layers.Dense(1568, activation='relu', kernel_regularizer='l2'),
+                keras.layers.Dense(500, activation='relu'),
+                keras.layers.Dense(self.num_classes, activation = 'softmax')
             ])
 
             return model
@@ -123,11 +123,11 @@ class BirdNetBlock():
             conv7 = keras.layers.Conv2D(16, kernel_size = 3, padding = 'same', activation = 'relu') (drop6)
             bn7 = keras.layers.BatchNormalization() (conv7)
 
-            flat = keras.Flatten()(bn7)
+            flat = keras.layers.Flatten()(bn7)
             dense1 = keras.layers.Dense(256, activation='relu')(flat)
 
-            output = keras.Dense(self.num_classes, activation='softmax')(dense1)
-            model = keras.Model(inputs=visible, outputs=output)
+            output = keras.layers.Dense(self.num_classes, activation='softmax')(dense1)
+            model = keras.models.Model(inputs=visible, outputs=output)
 
             return model
 
@@ -177,15 +177,14 @@ class BirdNetBlock():
             bn7 = keras.layers.BatchNormalization() (conv7)
             drop7 = keras.layers.Dropout(rate=0.3) (bn7)
 
-            flat = keras.Flatten()(bn7)
-            output = keras.Dense(self.num_classes, activation='softmax')(flat)
-            model = keras.Model(inputs=visible, outputs=output)
+            flat = keras.layers.Flatten()(bn7)
+            output = keras.layers.Dense(self.num_classes, activation='softmax')(flat)
+            model = keras.models.Model(inputs=visible, outputs=output)
 
             return model
 
-
-
 def get_model_architecture(model_call : str, num_classes: int, input_shape : tuple) -> keras.Model:
+    print(f"selected model is : {model_call}")
     if model_call == 'baseline_archi_0':
         training_model_call = CNNsimple(num_classes=num_classes,
                               input_shape=input_shape)
@@ -193,6 +192,7 @@ def get_model_architecture(model_call : str, num_classes: int, input_shape : tup
         training_model = training_model_call.build_archi_0()
 
     elif model_call == 'baseline_archi_1':
+
         training_model_call = CNNsimple(num_classes=num_classes,
                               input_shape=input_shape)
         training_model = training_model_call.build_archi_1()
@@ -202,9 +202,11 @@ def get_model_architecture(model_call : str, num_classes: int, input_shape : tup
                               input_shape=input_shape)
         training_model = training_model_call.build_archi_a()
     elif model_call == 'BirdNetBlock_b':
+
+        #training_model = test_model(num_classes, (64, 376, 1))
         training_model_call = BirdNetBlock(num_classes=num_classes,
                               input_shape=input_shape)
         training_model = training_model_call.build_archi_b()
     else:
-        raise NotImplementedError
+        raise Exception("Sorry, this model is not implemented yet")
     return training_model
