@@ -10,9 +10,9 @@ audiomentations
 pyyaml
 h5py
 
-sklearn
 fastapi
 uvicorn
 httpx
 scikit-learn
 scikit-image
+tabulate
