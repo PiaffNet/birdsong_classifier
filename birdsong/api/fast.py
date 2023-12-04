@@ -43,7 +43,7 @@ def predict(
     max = np.max(prediction)
     class_id = np.where(prediction == max)[1]
 
-    return dict(bird = int(class_id))
+    return dict(bird = int(class_id), confidence = float(max))
 
 
 @app.get("/")
