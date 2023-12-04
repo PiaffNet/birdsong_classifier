@@ -23,6 +23,41 @@ app.add_middleware(
 
 app.state.model = load_model()
 
+classes = ['Sand Martin',
+ 'Barn Swallow',
+ 'California Quail',
+ 'Canada Goose',
+ 'Caspian Tern',
+ 'Common Loon',
+ 'Northern Raven',
+ 'Common Redpoll',
+ 'Common Tern',
+ 'Black-necked Grebe',
+ 'Eurasian Collared Dove',
+ 'Common Starling',
+ 'Gadwall',
+ 'Eurasian Teal',
+ 'Golden Eagle',
+ 'Great Egret',
+ 'European Herring Gull',
+ 'Horned Lark',
+ 'House Sparrow',
+ 'Mallard',
+ 'Merlin',
+ 'Northern Shoveler',
+ 'Western Osprey',
+ 'Pectoral Sandpiper',
+ 'Peregrine Falcon',
+ 'Red Crossbill',
+ 'Ring-billed Gull',
+ 'Ring-necked Duck',
+ 'Rock Dove',
+ 'Ruddy Duck',
+ 'Short-eared Owl',
+ 'silence',
+ 'Snow Bunting',
+ 'Tundra Swan']
+
 
 @app.get("/predict")
 def predict(
@@ -43,7 +78,7 @@ def predict(
     max = np.max(prediction)
     class_id = np.where(prediction == max)[1]
 
-    return dict(bird = int(class_id), confidence = float(max))
+    return dict(bird = classes[int(class_id)], confidence = float(max))
 
 
 @app.get("/")
