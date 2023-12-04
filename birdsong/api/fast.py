@@ -2,11 +2,14 @@
 
 from birdsong.model.model import load_model, predict_model
 from birdsong.audiotransform.to_image import AudioPreprocessor
+
 import numpy as np
+import os
 
 # $WIPE_END
 
-from fastapi import FastAPI
+from typing import Annotated
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -19,6 +22,7 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
+
 
 
 app.state.model = load_model()
@@ -59,10 +63,24 @@ classes = ['Sand Martin',
  'Tundra Swan']
 
 
+@app.get("/")
+def root():
+    # $CHA_BEGIN
+    return dict(greeting="Hello birdies ! ;) ")
+    # $CHA_END
+
+
+@app.post("/files/")
+async def create_file(file: Annotated[bytes, File()]):
+    return {"file_size": len(file)}
+
+@app.post("/uploadfile/")
+async def create_upload_sound(sound: UploadFile | None = None):
+    return {'filename': sound.filename, 'content': sound.content_type}
+
+
 @app.get("/predict")
-def predict(
-        path: str  #path to the directory where the test file is
-    ):      # 1
+def predict(file):
     """
     Predict the bird, with the pre chosen model in load_model
     """
@@ -70,6 +88,7 @@ def predict(
     model = app.state.model
     assert model is not None
 
+    path = create_upload_file(file)["filename"]
     prediction = predict_model(model, path)
 
     # ⚠️ fastapi only accepts simple Python data types as a return value
@@ -79,10 +98,3 @@ def predict(
     class_id = np.where(prediction == max)[1]
 
     return dict(bird = classes[int(class_id)], confidence = float(max))
-
-
-@app.get("/")
-def root():
-    # $CHA_BEGIN
-    return dict(greeting="Hello birdies ! ;) ")
-    # $CHA_END
