@@ -2,6 +2,7 @@
 
 from birdsong.model.model import load_model, predict_model
 from birdsong.audiotransform.to_image import AudioPreprocessor
+import numpy as np
 
 # $WIPE_END
 
@@ -20,7 +21,7 @@ app.add_middleware(
 )
 
 
-app.state.model = load_model("..\..\raw_data\4th_model_reg")
+app.state.model = load_model()
 
 
 @app.get("/predict")
@@ -39,7 +40,10 @@ def predict(
     # ⚠️ fastapi only accepts simple Python data types as a return value
     # among them dict, list, str, int, float, bool
     # in order to be able to convert the api response to JSON
-    return dict(bird= prediction)
+    max = np.max(prediction)
+    class_id = np.where(prediction == max)[1]
+
+    return dict(bird = int(class_id))
 
 
 @app.get("/")
