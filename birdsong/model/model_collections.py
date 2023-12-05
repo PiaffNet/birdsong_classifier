@@ -184,6 +184,14 @@ class BirdNetBlock():
             return model
 
 def get_model_architecture(model_call : str, num_classes: int, input_shape : tuple) -> keras.Model:
+    """
+    This function returns the model architecture based on the model_call
+
+    Args:
+        model_call (str): model name defined in the config file
+        num_classes (int): number of classes to predict
+        input_shape (tuple): input shape
+    """
     print(f"selected model is : {model_call}")
     if model_call == 'baseline_archi_0':
         training_model_call = CNNsimple(num_classes=num_classes,

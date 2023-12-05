@@ -4,8 +4,7 @@ from pydub import AudioSegment
 import librosa
 import os
 from birdsong.utils import create_folder_if_not_exists
-from birdsong.config import config
-from birdsong import PARENT_BASE_PATH
+from birdsong import DATA_TRAIN_AUDIO_PATH, DATA_SPLIT_PATH, DATA_RAW_PATH
 
 class AudioSlicer():
     '''
@@ -17,11 +16,11 @@ class AudioSlicer():
         - target_directory : str -> path to the copied data, will reconstruct the architecture of the original directory with silence and too_small added
         - silence_intolerance : int -> the higher the number the less likely a sample is to be considered silent
     '''
-    def __init__(self, input_directory : str, target_directory : str):
+    def __init__(self):
         self.rating_threshold = 2.5
         self.country = "France"
-        self.input_directory = input_directory
-        self.target_directory = target_directory
+        self.input_directory = DATA_TRAIN_AUDIO_PATH
+        self.target_directory = DATA_SPLIT_PATH
         self.silence_intolerance = int(6)
         self.frame_length = int(2048)
         self.duration = int(3000) #ms
@@ -44,7 +43,7 @@ class AudioSlicer():
         and puts them in the corresponding folder, if the slice is too short or too silent
         it goes into different folders.
         """
-        ref_csv_file_path = os.path.join(PARENT_BASE_PATH,"raw_data","train.csv")
+        ref_csv_file_path = os.path.join(DATA_RAW_PATH,"train.csv")
         df = pd.read_csv(ref_csv_file_path)
         create_folder_if_not_exists(self.silence_path)
         _species = list(df.species[df['country'] == self.country].unique())

@@ -14,8 +14,7 @@ from birdsong.utils import read_prediction
 def slice_audio():
     print('Slicing audio...')
 
-    audio_slicer = AudioSlicer(input_directory=config.TRAIN_AUDIO_PATH,
-                               target_directory=config.SPLIT_DATA_PATH)
+    audio_slicer = AudioSlicer()
     audio_slicer.slice_audio()
 
     print("✅ slicing done")
