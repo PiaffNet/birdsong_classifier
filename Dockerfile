@@ -15,5 +15,5 @@ COPY birdsong birdsong
 COPY Makefile Makefile
 
 
-#CMD (API à faire, juste pour l'exemple)
-CMD uvicorn bird.api.fast:app --host 0.0.0.0 --port $PORT
+#CMD
+CMD uvicorn birdsong.api.fast:app --host 0.0.0.0 --port $PORT
