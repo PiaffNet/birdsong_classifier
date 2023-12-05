@@ -23,3 +23,7 @@ For good project management:
   - [x] git status
   - [x] git commit
   - [x] git push
+
+# Tests
+
+define tests in the project
