@@ -3,112 +3,76 @@ import numpy as np
 from pydub import AudioSegment
 import librosa
 import os
+from birdsong.utils import create_folder_if_not_exists
 from birdsong.config import config
+from birdsong import PARENT_BASE_PATH
 
-
-def slicer(directory : str, newdir : str, silence_intolerance : int = 6 ) -> None :
+class AudioSlicer():
     '''
     Slices audio data to 3 seconds mp3s and puts them in the corresponding folder,
     if the slice is too short or too silent it goes into different folders.
 
     params :
-        - directory : str  -> directory to copy from, should follow the directory/species_folders format
-        - newdir : str -> path to the copied data, will reconstruct the architecture of the original directory with silence and too_small added
+        - input_directory : str  -> directory to copy from, should follow the directory/species_folders format
+        - target_directory : str -> path to the copied data, will reconstruct the architecture of the original directory with silence and too_small added
         - silence_intolerance : int -> the higher the number the less likely a sample is to be considered silent
+    '''
+    def __init__(self, input_directory : str, target_directory : str):
+        self.rating_threshold = 2.5
+        self.country = "France"
+        self.input_directory = input_directory
+        self.target_directory = target_directory
+        self.silence_intolerance = int(6)
+        self.frame_length = int(2048)
+        self.duration = int(3000) #ms
+        self.silence_path = os.path.join(self.target_directory,"silence")
 
-    TODO:
-      - define as a class
-      - do not forget delete "too_small" directory after the slicing process
-     '''
-    df = pd.read_csv("raw_data/train.csv")
+    @staticmethod
+    def make_splits(file_n, sr, frame_length, duration):
+        x, sr = librosa.load(file_n, sr=sr)
+        X = librosa.stft(x)
+        rms_tot = librosa.feature.rms(S=X, frame_length = frame_length)
+        try:
+            song = AudioSegment.from_file(file_n, "mp3")
+            splits = song[::duration]
+            return 1, splits, rms_tot
+        except:
+            return 0, 0, 0
 
-    for dirspecies in os.listdir(directory):
-        f = os.path.join(directory, dirspecies)
-        # checking if the species directory exists and iters through it
+    def slice_audio(self):
+        """ Slices the audio files in the input_directory into 3 seconds mp3s
+        and puts them in the corresponding folder, if the slice is too short or too silent
+        it goes into different folders.
+        """
+        ref_csv_file_path = os.path.join(PARENT_BASE_PATH,"raw_data","train.csv")
+        df = pd.read_csv(ref_csv_file_path)
+        create_folder_if_not_exists(self.silence_path)
+        _species = list(df.species[df['country'] == self.country].unique())
+        df_country_species = df[df['species'].isin(_species)]
+        df_country_selection = df_country_species[df_country_species['rating'] > self.rating_threshold]
+        bird_code_list = df_country_selection.loc[:,'ebird_code'].unique().tolist()
 
-        if os.path.isdir(f) :
+        for dirspecies in bird_code_list:
+            f = os.path.join(self.input_directory, dirspecies)
+            # checking if the species input_directory exists and iters through it
 
-            for file in os.listdir(f):
-                sr = int(df['sampling_rate'][df['filename'] == file].values[0][:-5])
-                # charge le fichier dans un format pydub et check le RMS general
-                fileN = os.path.join(f, file)
-                x, sr = librosa.load(fileN, sr=sr)
-                X = librosa.stft(x)
-                rms_tot = librosa.feature.rms(S=X, frame_length=2048)
-                #song = AudioSegment.from_mp3(fileN)
-                try:
-                    song = AudioSegment.from_file(fileN, "mp3")
-                except:
-                    pass
+            if os.path.isdir(f) :
+                split_path = os.path.join(self.target_directory, dirspecies)
+                create_folder_if_not_exists(split_path)
 
-                #split the birdsong audio into 3sec chunks
-                splits = song[::3000]  ##comprend pas bien ce que ca fait
+                for file in os.listdir(f):
+                    sr = int(df['sampling_rate'][df['filename'] == file].values[0][:-5])
+                    # charge le fichier dans un format pydub et check le RMS general
+                    file_n = os.path.join(f, file)
+                    res, splits, rms_tot = self.make_splits(file_n, sr, self.frame_length, self.duration)
 
-                if os.path.isdir(os.path.join(newdir, dirspecies)): #une fois que le fichier est splitté on le copie dans le bon dossier
-                    for i,split in enumerate(splits) :
-                        split.export(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", format="mp3")
-                        x, sr = librosa.load(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", sr=sr)
-                        X = librosa.stft(x)
-                        rms = librosa.feature.rms(S=X, frame_length=2048)
-
-
-                        if rms.mean() < rms_tot.mean()/silence_intolerance :  #si dossier silencieux
-                            if os.path.isdir(os.path.join(newdir, "silence")):
-                                os.rename(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", f"{newdir}/silence/{file[:-4]}_{i}.mp3")
-                            else :
-                                os.makedirs(os.path.join(newdir, "silence"))
-                                os.rename(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", f"{newdir}/silence/{file[:-4]}_{i}.mp3")
-
-                        if len(x) < ((sr*3)-2):
-                            if os.path.isdir(os.path.join(newdir, "too_small")) :
-                                if os.path.isfile(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3"):
-                                    os.rename(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", f"{newdir}/too_small/{file[:-4]}_{i}.mp3")
-                                else :
-                                    os.rename(f"{newdir}/silence/{file[:-4]}_{i}.mp3", f"{newdir}/too_small/{file[:-4]}_{i}.mp3")
-                            else :
-
-                                os.makedirs(os.path.join(newdir, "too_small"))
-                                if os.path.isfile(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3"):
-                                    os.rename(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", f"{newdir}/too_small/{file[:-4]}_{i}.mp3")
-                                else :
-                                    os.rename(f"{newdir}/silence/{file[:-4]}_{i}.mp3", f"{newdir}/too_small/{file[:-4]}_{i}.mp3")
-
-
-                else :  # si le dossier species existe pas on le créée et rebelotte
-                    os.makedirs(os.path.join(newdir, dirspecies))
-
-                    for i,split in enumerate(splits) :
-                        split.export(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", format="mp3")
-                        x, sr = librosa.load(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", sr=sr)
-                        X = librosa.stft(x)
-                        rms = librosa.feature.rms(S=X, frame_length=2048)
-
-
-                        if rms.mean() < rms_tot.mean()/silence_intolerance :
-                            if os.path.isdir(os.path.join(newdir, "silence")):
-                                os.rename(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", f"{newdir}/silence/{file[:-4]}_{i}.mp3")
-                            else :
-                                os.makedirs(os.path.join(newdir, "silence"))
-                                os.rename(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", f"{newdir}/silence/{file[:-4]}_{i}.mp3")
-
-                        if len(x) < ((sr*3)-2):
-                            if os.path.isdir(os.path.join(newdir, "too_small")) :
-                                if os.path.isfile(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3"):
-                                    os.rename(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", f"{newdir}/too_small/{file[:-4]}_{i}.mp3")
-                                else :
-                                    os.rename(f"{newdir}/silence/{file[:-4]}_{i}.mp3", f"{newdir}/too_small/{file[:-4]}_{i}.mp3")
-                            else :
-
-                                os.makedirs(os.path.join(newdir, "too_small"))
-                                if os.path.isfile(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3"):
-                                    os.rename(f"{newdir}/{dirspecies}/{file[:-4]}_{i}.mp3", f"{newdir}/too_small/{file[:-4]}_{i}.mp3")
-                                else :
-                                    os.rename(f"{newdir}/silence/{file[:-4]}_{i}.mp3", f"{newdir}/too_small/{file[:-4]}_{i}.mp3")
-
-
-
-if __name__ == "__main__" :
-
-    directory = 'raw_data/selected_samples/train_audio'
-    newdir = 'raw_data/split_data'
-    slicer(directory, newdir, silence_intolerance = 6)
+                    if (res == 1):
+                        for i, split in enumerate(splits):
+                            x = np.asarray(split.get_array_of_samples(), dtype=np.float64)
+                            if len(x) >= ((sr * 3) - 2):
+                                X = librosa.stft(x)
+                                rms = librosa.feature.rms(S=X, frame_length=self.frame_length)
+                                if rms.mean() < rms_tot.mean() / self.silence_intolerance :
+                                    split.export(os.path.join(self.silence_path,f"{file[:-4]}_{i}.mp3"), format="mp3")
+                                else:
+                                    split.export(os.path.join(split_path ,f"{file[:-4]}_{i}.mp3"), format="mp3")
