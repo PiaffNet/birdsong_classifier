@@ -16,5 +16,9 @@ For good project management:
 
 ## implementation
 
-- [ ] adopt slicer.py as python class
+- [x] adopt slicer.py as python class
 - [ ] add dockstring ad function description
+
+# Tests
+
+define tests in the project

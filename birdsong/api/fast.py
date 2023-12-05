@@ -2,6 +2,7 @@
 
 from birdsong.model.model import load_model, predict_model
 from birdsong.audiotransform.to_image import AudioPreprocessor
+import numpy as np
 
 # $WIPE_END
 
@@ -20,7 +21,42 @@ app.add_middleware(
 )
 
 
-app.state.model = load_model("..\..\raw_data\4th_model_reg")
+app.state.model = load_model()
+
+classes = ['Sand Martin',
+ 'Barn Swallow',
+ 'California Quail',
+ 'Canada Goose',
+ 'Caspian Tern',
+ 'Common Loon',
+ 'Northern Raven',
+ 'Common Redpoll',
+ 'Common Tern',
+ 'Black-necked Grebe',
+ 'Eurasian Collared Dove',
+ 'Common Starling',
+ 'Gadwall',
+ 'Eurasian Teal',
+ 'Golden Eagle',
+ 'Great Egret',
+ 'European Herring Gull',
+ 'Horned Lark',
+ 'House Sparrow',
+ 'Mallard',
+ 'Merlin',
+ 'Northern Shoveler',
+ 'Western Osprey',
+ 'Pectoral Sandpiper',
+ 'Peregrine Falcon',
+ 'Red Crossbill',
+ 'Ring-billed Gull',
+ 'Ring-necked Duck',
+ 'Rock Dove',
+ 'Ruddy Duck',
+ 'Short-eared Owl',
+ 'silence',
+ 'Snow Bunting',
+ 'Tundra Swan']
 
 
 @app.get("/predict")
@@ -39,7 +75,10 @@ def predict(
     # ⚠️ fastapi only accepts simple Python data types as a return value
     # among them dict, list, str, int, float, bool
     # in order to be able to convert the api response to JSON
-    return dict(bird= prediction)
+    max = np.max(prediction)
+    class_id = np.where(prediction == max)[1]
+
+    return dict(bird = classes[int(class_id)], confidence = float(max))
 
 
 @app.get("/")
