@@ -20,7 +20,7 @@
 #   - F_MIN: int, minimum frequency of the spectrogram (in Hz)
 #   - F_MAX: int, maximum frequency of the spectrogram (in Hz)
 # - NN parameters
-#   - MODEL_NAME: string, to choose from implemented model collections in 'birdsong.model.model_collections.py',
+#   - MODEL_NAME: string, to choose from implemented DNN models collection in 'birdsong.model.model_collections.py',
 #                 rigth now, you can choose between ["baseline_archi_0","baseline_archi_1","BirdNetBlock_a","BirdNetBlock_b"].
 #   - MODEL_SAVE_PATH: string, wanted label of directory where to save the model. The directory will be created
 #                      in the directory where 'birdsong' package is saved.

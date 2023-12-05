@@ -3,6 +3,9 @@ reinstall_package:
 	@pip install -e .
 
 #################### PACKAGE ACTIONS ###################
+run_slicing:
+	python -c 'from birdsong.interface.main import slicing; slicing()'
+
 run_preprocess:
 	python -c 'from birdsong.interface.main import preprocess; preprocess()'
 
@@ -17,7 +20,5 @@ run_preprocess_and_train:
 
 run_api:
 	uvicorn birdsong.api.fast:app --reload
-
-
 
 #################### TESTS ACTIONS ###################
