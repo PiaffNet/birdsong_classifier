@@ -45,8 +45,8 @@ def get_validation_test_data_sets():
                             color_mode = "grayscale",
                             shuffle = SHUFLE_VALUE)
     val_batches = tf_cardinality(val_ds)
-    test_ds = val_ds.take((int(config.TEST_SIZE_PART) * val_batches) // 3)
-    val_ds = val_ds.skip((int(config.TEST_SIZE_PART) * val_batches) // 3)
+    test_ds = val_ds.take((1 * val_batches) // 3)
+    val_ds = val_ds.skip((1 * val_batches) // 3)
     print(f"✅ validation and test data set generated")
     return val_ds, test_ds
 
