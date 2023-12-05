@@ -35,6 +35,8 @@
 #   - PATIENCE : int, argument patience in tensorflow EarlyStopping. Number of epochs with no improvement after which training will be stopped
 # - sound augmenter encoders variables
 #
+TRAIN_AUDIO_PATH : "train_audio"
+SPLITED_DATA_PATH : "split_data"
 # data load parameters
 MODEL_TARGET : "local" #to move in .env
 OUTPUT_FORMAT : "png"

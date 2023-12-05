@@ -5,10 +5,22 @@ from birdsong.config import config
 from birdsong.model.model import initialize_model, compile_model, train_model, evaluate_model
 from birdsong.model.transform import get_train_data_set, get_validation_test_data_sets
 from birdsong.audiotransform.to_image import AudioPreprocessor
+from birdsong.audiotransform.slicer import AudioSlicer
 from birdsong.model.transform import get_train_data_set, get_validation_test_data_sets
 from birdsong.model.model import initialize_model, compile_model, train_model,\
                                  evaluate_model, save_model,load_model,predict_model, model_get_from_checkpoint
 from birdsong.utils import read_prediction
+
+def slice_audio():
+    print('Slicing audio...')
+
+    audio_slicer = AudioSlicer(input_directory=config.TRAIN_AUDIO_PATH,
+                               target_directory=config.SPLIT_DATA_PATH)
+    audio_slicer.slice_audio()
+
+    print("✅ slicing done")
+
+    return 1
 
 def preprocess_and_train():
 
