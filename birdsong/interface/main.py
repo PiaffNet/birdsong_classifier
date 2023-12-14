@@ -53,12 +53,12 @@ def train():
     val_ds, test_ds = get_validation_test_data_sets()
 
     class_names = train_ds.class_names
-    num_classes = len(class_names)
+    nb_classes = len(class_names)
 
-    print(f"find {num_classes} classes in data set")
+    print(f"find {nb_classes} classes in data set")
 
     model = initialize_model(model_call_label=config.MODEL_NAME,
-                             num_classes=num_classes)
+                             nb_classes=nb_classes)
     model = compile_model(model)
 
     print(model.summary())
