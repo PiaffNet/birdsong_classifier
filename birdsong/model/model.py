@@ -8,7 +8,7 @@ import glob
 import numpy as np
 import pandas as pd
 from typing import Tuple
-import tensorflow as tf
+from tensorflow import config as tf_config
 from tensorflow import keras
 import plotext as pltxt
 from birdsong.config import config
@@ -79,8 +79,41 @@ class PlayModel():
         except:
             raise ValueError("❌ No checkpoint found")
 
+    def load_model(self)-> keras.Model:
+        """
+        Return a saved model:
+        - locally (latest one in alphabetical order)
+        Return None (but do not Raise) if no model is found
+
+        """
+        if config.MODEL_TARGET == "local":
+
+            print(f"\nLoad latest model from local registry...")
+
+            model_save_dir = os.path.join(PARENT_BASE_PATH, config.MODEL_SAVE_PATH, config.MODEL_NAME)
+
+            # Get the latest model version name by the timestamp on disk
+            local_model_paths = glob.glob(f"{model_save_dir}/*.h5")
+
+            if not local_model_paths:
+                return None
+
+            most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
+
+            print( most_recent_model_path_on_disk)
+
+            print(f"\nLoad latest model from disk...")
+
+            latest_model = keras.models.load_model(most_recent_model_path_on_disk)
+
+            print("✅ Model loaded from local disk")
+            print("-"*30)
+            return latest_model
+        else:
+            return None
 
     def predict_model(self, data_to_predict):
+        """This method is used to predict the class of a new audio file."""
         try:
             self.model = self.load_model()
             audio_processor = AudioPreprocessor()
@@ -116,6 +149,9 @@ class PlayModel():
         return model
 
     def __train_model_from_checkpoint(self)-> [keras.Model, dict]:
+        """This method is used to train a model from the last checkpoint.
+        note that is a private method and can only be called inside the class."""
+
         self.__train_ds, self.__val_ds, self.__test_ds = self.set_train_data_set()
 
         class_names = self.__train_ds.class_names
@@ -134,6 +170,9 @@ class PlayModel():
         return model
 
     def __load_train_model(self):
+        """This method is used to load a saved model and train it again.
+        note that is a private method and can only be called inside the class."""
+
         model = self.load_model()
         self.__train_ds, self.__val_ds, self.__test_ds = self.set_train_data_set()
         class_names = self.__train_ds.class_names
@@ -145,39 +184,6 @@ class PlayModel():
         timestamp = self.save_model(model)
         self.save_history(history,timestamp)
         return model
-
-    def load_model(self)-> keras.Model:
-        """
-        Return a saved model:
-        - locally (latest one in alphabetical order)
-        Return None (but do not Raise) if no model is found
-
-        """
-        if config.MODEL_TARGET == "local":
-
-            print(f"\nLoad latest model from local registry...")
-
-            model_save_dir = os.path.join(PARENT_BASE_PATH, config.MODEL_SAVE_PATH, config.MODEL_NAME)
-
-            # Get the latest model version name by the timestamp on disk
-            local_model_paths = glob.glob(f"{model_save_dir}/*.h5")
-
-            if not local_model_paths:
-                return None
-
-            most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
-
-            print( most_recent_model_path_on_disk)
-
-            print(f"\nLoad latest model from disk...")
-
-            latest_model = keras.models.load_model(most_recent_model_path_on_disk)
-
-            print("✅ Model loaded from local disk")
-
-            return latest_model
-        else:
-            return None
 
     @staticmethod
     def evaluate_model(model, test_data)-> dict:
@@ -217,6 +223,7 @@ class PlayModel():
                                     input_shape=(n_rows,n_columns,1))
 
         print(f"✅ Model {model_call_label} initialized")
+        print("-"*30)
         return model
 
     @staticmethod
@@ -229,6 +236,7 @@ class PlayModel():
                     loss='sparse_categorical_crossentropy',
                     metrics=['accuracy'])
         print("✅ Model compiled")
+        print("-"*30)
         return model
 
     @staticmethod
@@ -241,7 +249,7 @@ class PlayModel():
         """
         print("Training user selected model...")
 
-        print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+        print("Num GPUs Available: ", len(tf_config.list_physical_devices('GPU')))
 
         es = keras.callbacks.EarlyStopping(monitor='val_loss',
                         mode='min',
@@ -285,6 +293,7 @@ class PlayModel():
 
 
         print("✅ User selected model trained")
+        print("-"*30)
         return model, history
 
     @staticmethod
@@ -301,6 +310,7 @@ class PlayModel():
         model.save(model_path)
 
         print("✅ Model saved locally")
+        print("-"*30)
         return timestamp
 
     @staticmethod
