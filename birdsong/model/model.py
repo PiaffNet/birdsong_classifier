@@ -8,6 +8,7 @@ import glob
 import numpy as np
 import pandas as pd
 from typing import Tuple
+import tensorflow as tf
 from tensorflow import keras
 import plotext as pltxt
 from birdsong.config import config
@@ -16,102 +17,187 @@ from birdsong.utils import create_folder_if_not_exists
 from birdsong.audiotransform.to_image import AudioPreprocessor
 from birdsong.model.transform import get_train_data_set, get_validation_test_data_sets
 from birdsong import PARENT_BASE_PATH
+from birdsong.utils import read_prediction
 
 
 
 
 class PlayModel():
+    """This simple class is used to call and interact with the keras model.
+    It can be used to train, evaluate, predict and plot the training curves of the
+    model. Play attention to the use of private and static methods.
+    """
     def __init__(self):
         self.model_call_label = config.MODEL_NAME
         self.nb_classes = None
         self.model = None
+        self.metrics = None
         self.call_mode = None
+        self.__train_ds = None #private
+        self.__val_ds = None #private
+        self.__test_ds = None #private
 
-    def get_model(self,call_mode = 'play_from_begining'):
-        self.call_mode = call_mode
 
-        if self.call_mode == 'play_from_checkpoint':
-            try:
-                self.model, history = self.train_model_from_checkpoint()
-            except:
-                raise ValueError("❌ No checkpoint found")
+    def get_new_model(self):
+        """This method is used to train a new model from scratch"""
+        self.call_mode = 'train_from_begining'
+        self.model = self.__train_new_model()
 
-        elif self.call_mode == 'play_saved_model':
-            try:
-                self.model, history = self.load_train_model()
-            except:
-                raise ValueError("❌ No saved model found. Please train a model first")
-        elif self.call_mode == 'play_from_begining':
-            self.model, history = self.get_trained_model()
-        else:
-            try:
-                self.model = self.load_model()
-            except:
-                raise ValueError("❌ No saved model found. Please train a model first")
+        self.metrics = self.evaluate_model(self.model, self.__test_ds)
 
-    def get_trained_model(self):
-        train_ds, val_ds, test_ds = self.set_data_set()
-        class_names = train_ds.class_names
+        predictions = self.model.predict(self.__test_ds)
+        predictions_df = read_prediction(predictions, self.__train_ds.class_names)
+        return predictions_df
+
+    def get_saved_model(self):
+        """This method is used to load a saved model and train it again.
+        Here, we call a private method to load and to train the model"""
+        self.call_mode = 'train_saved_model'
+        try:
+            self.model = self.__load_train_model()
+
+            self.metrics = self.evaluate_model(self.model, self.__test_ds)
+
+            predictions = self.model.predict(self.__test_ds)
+            predictions_df = read_prediction(predictions, self.__train_ds.class_names)
+            return predictions_df
+        except:
+            raise ValueError("❌ No saved model found. Please train a model first")
+
+    def get_model_from_checkpoint(self):
+        """This method is used to train a model from the last checkpoint.
+        """
+        self.call_mode = 'train_from_checkpoint'
+        try:
+            self.model = self.__train_model_from_checkpoint()
+
+            self.metrics = self.evaluate_model(self.model, self.__test_ds)
+
+            predictions = self.model.predict(self.__test_ds)
+            predictions_df = read_prediction(predictions, self.__train_ds.class_names)
+            return predictions_df
+        except:
+            raise ValueError("❌ No checkpoint found")
+
+
+    def predict_model(self, data_to_predict):
+        try:
+            self.model = self.load_model()
+            audio_processor = AudioPreprocessor()
+            signal_processed = audio_processor.preprocess_audio_array(data_to_predict)
+            signal_tensor = np.expand_dims(signal_processed, axis=0)
+            predictions = self.model.predict(signal_tensor)
+            return predictions
+        except:
+            raise ValueError("❌ No saved model found. Please train a model first")
+
+
+    def __train_new_model(self):
+        """This method is used to train a new model from scratch.
+        note that is a private method and can only be called inside the class."""
+
+        self.__train_ds, self.__val_ds, self.__test_ds = self.set_train_data_set()
+
+        class_names = self.__train_ds.class_names
         self.nb_classes = len(class_names)
+        print(f"find {self.nb_classes} classes in data set")
+
         model = self.initialize_model(self.model_call_label, self.nb_classes)
         model = self.compile_model(model)
-        model, history = self.train_model(model, train_ds, val_ds)
-        self.save_history(history)
+        print(model.summary())
+
+        model, history = self.train_model(model=model,
+                                          train_data=self.__train_ds,
+                                          validation_data=self.__val_ds)
+
         self.plot_train_curves(history)
-        self.save_model(model)
-        return model, history
+        timestamp = self.save_model(model)
+        self.save_history(history,timestamp)
+        return model
 
+    def __train_model_from_checkpoint(self)-> [keras.Model, dict]:
+        self.__train_ds, self.__val_ds, self.__test_ds = self.set_train_data_set()
 
-    def evaluate_model(self)-> dict:
+        class_names = self.__train_ds.class_names
+        self.nb_classes = len(class_names)
+
+        model = self.initialize_model(self.model_call_label, self.nb_classes)
+        model = self.compile_model(model)
+
+        model = self.set_model_from_checkpoint(model)
+
+        model, history = self.train_model(model, self.__train_ds, self.__val_ds)
+
+        self.plot_train_curves(history)
+        timestamp = self.save_model(model)
+        self.save_history(history,timestamp)
+        return model
+
+    def __load_train_model(self):
+        model = self.load_model()
+        self.__train_ds, self.__val_ds, self.__test_ds = self.set_train_data_set()
+        class_names = self.__train_ds.class_names
+        self.nb_classes = len(class_names)
+
+        model, history = self.train_model(model,self.__train_ds, self.__val_ds)
+
+        self.plot_train_curves(history)
+        timestamp = self.save_model(model)
+        self.save_history(history,timestamp)
+        return model
+
+    def load_model(self)-> keras.Model:
         """
-        Evaluate the model
-        """
-        if self.model is None:
-            raise ValueError("❌ No model to evaluate !")
+        Return a saved model:
+        - locally (latest one in alphabetical order)
+        Return None (but do not Raise) if no model is found
 
-        metrics  = self.model.evaluate(test_data = self.test_ds,
+        """
+        if config.MODEL_TARGET == "local":
+
+            print(f"\nLoad latest model from local registry...")
+
+            model_save_dir = os.path.join(PARENT_BASE_PATH, config.MODEL_SAVE_PATH, config.MODEL_NAME)
+
+            # Get the latest model version name by the timestamp on disk
+            local_model_paths = glob.glob(f"{model_save_dir}/*.h5")
+
+            if not local_model_paths:
+                return None
+
+            most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
+
+            print( most_recent_model_path_on_disk)
+
+            print(f"\nLoad latest model from disk...")
+
+            latest_model = keras.models.load_model(most_recent_model_path_on_disk)
+
+            print("✅ Model loaded from local disk")
+
+            return latest_model
+        else:
+            return None
+
+    @staticmethod
+    def evaluate_model(model, test_data)-> dict:
+        """
+        Evaluate the model. The model must be loaded or trained first.
+        """
+        print("i am here")
+        metrics  = model.evaluate(test_data,
                                        verbose=0,
                                        return_dict = True)
         print("✅ Model evaluated")
+        print(f"Training loss {metrics[model.metrics_names[0]]} accuracy {metrics[model.metrics_names[1]]}")
         return metrics
 
-    def predict_model(self, data_to_predict):
-        self.model = self.load_model()
-        audio_processor = AudioPreprocessor()
-        signal_processed = audio_processor.preprocess_audio_array(data_to_predict)
-        signal_tensor = np.expand_dims(signal_processed, axis=0)
-        predictions = self.model.predict(signal_tensor)
-        return predictions
-
-    def train_model_from_checkpoint(self)-> keras.Model:
-        train_ds, val_ds, test_ds = self.set_data_set()
-        class_names = train_ds.class_names
-        self.nb_classes = len(class_names)
-        model = self.initialize_model(self.model_call_label, self.nb_classes)
-        model = self.compile_model(model)
-        model = self.set_model_from_checkpoint(model)
-        model, history = self.train_model(model, train_ds, val_ds)
-        self.save_history(history)
-        self.plot_train_curves(history)
-        self.save_model(model)
-        return model, history
-
-    def load_train_model(self):
-        model = self.load_model()
-        train_ds, val_ds, test_ds = self.set_data_set()
-        class_names = train_ds.class_names
-        self.nb_classes = len(class_names)
-        model, history = self.train_model(model,train_ds, val_ds)
-        self.save_history(history)
-        self.plot_train_curves(history)
-        self.save_model(model)
-        return model, history
-
     @staticmethod
-    def set_data_set():
+    def set_train_data_set():
          train_ds = get_train_data_set()
          val_ds, test_ds = get_validation_test_data_sets()
          return train_ds, val_ds, test_ds
+
 
     @staticmethod
     def initialize_model(model_call_label, nb_classes):
@@ -146,14 +232,16 @@ class PlayModel():
         return model
 
     @staticmethod
-    def train_model(model: keras.Model,
-                    train_data: keras.preprocessing.image.DirectoryIterator,
-                    validation_data: keras.preprocessing.image.DirectoryIterator,
+    def train_model(model,
+                    train_data,
+                    validation_data,
                     epochs=1000)-> Tuple[keras.Model, dict]:
         """
         Train the model
         """
         print("Training user selected model...")
+
+        print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
         es = keras.callbacks.EarlyStopping(monitor='val_loss',
                         mode='min',
@@ -163,10 +251,22 @@ class PlayModel():
         print("✅ Early stopping callback created")
 
         # Create a callback that saves the model's weights
-        checkpoint_dir = os.path.join(PARENT_BASE_PATH,config.CHECKPOINT_FOLDER_PATH)
+        checkpoint_dir = os.path.join(PARENT_BASE_PATH, config.CHECKPOINT_FOLDER_PATH)
         create_folder_if_not_exists(checkpoint_dir)
+        create_folder_if_not_exists(os.path.join(checkpoint_dir, config.MODEL_NAME))
 
-        cp_callback = self.save_model_checkpoints(checkpoint_dir)
+        # Include the epoch in the file name (uses `str.format`)
+        checkpoint_path = os.path.join(checkpoint_dir, config.MODEL_NAME,"cp-best.ckpt")
+
+        # Create a callback that saves the model's weights every epoch and keeps only the best one
+        cp_callback = keras.callbacks.ModelCheckpoint(
+            filepath=checkpoint_path,
+            verbose=1,
+            save_weights_only=True,
+            save_freq= 'epoch',
+            save_best_only = True,
+            monitor ='val_loss',
+            mode = 'min')
         print("✅ Checkpoint callback created")
 
         #override epocs number
@@ -177,14 +277,14 @@ class PlayModel():
 
         print("epochs number : ", epochs)
         history = model.fit(
-            train_data = train_data,
+            train_data,
             validation_data=validation_data,
             epochs=epochs,
-            callbacks=[es,cp_callback],
+            callbacks=[es, cp_callback],
             verbose=1)
 
 
-        print("✅ Model trained")
+        print("✅ User selected model trained")
         return model, history
 
     @staticmethod
@@ -201,100 +301,17 @@ class PlayModel():
         model.save(model_path)
 
         print("✅ Model saved locally")
-        return None
-
-    @staticmethod
-    def load_model()-> keras.Model:
-        """
-        Return a saved model:
-        - locally (latest one in alphabetical order)
-        Return None (but do not Raise) if no model is found
-
-        """
-        if config.MODEL_TARGET == "local":
-
-            print(f"\nLoad latest model from local registry...")
-
-            model_save_dir = os.path.join(PARENT_BASE_PATH, config.MODEL_SAVE_PATH, config.MODEL_NAME)
-
-            # Get the latest model version name by the timestamp on disk
-            local_model_paths = glob.glob(f"{model_save_dir}/*")
-
-            if not local_model_paths:
-                return None
-
-            most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
-
-            print(f"\nLoad latest model from disk...")
-
-            latest_model = keras.models.load_model(most_recent_model_path_on_disk)
-
-            print("✅ Model loaded from local disk")
-
-            return latest_model
-        else:
-            return None
-
-
-    @staticmethod
-    def save_model_checkpoints(checkpoint_folder_path, save_freq ='epoch'):
-
-        # Include the epoch in the file name (uses `str.format`)
-        checkpoint_path = os.path.join(checkpoint_folder_path, config.MODEL_NAME,"cp-best.ckpt")
-        create_folder_if_not_exists(os.path.join(checkpoint_folder_path, config.MODEL_NAME))
-        # Create a callback that saves the model's weights every epoch and keeps only the best one
-        cp_callback = keras.callbacks.ModelCheckpoint(
-            filepath=checkpoint_path,
-            verbose=1,
-            save_weights_only=True,
-            save_freq= save_freq, save_best_only = True,
-            monitor ='val_loss', mode = 'min')
-
-        return cp_callback
-
-
-
+        return timestamp
 
     @staticmethod
     def set_model_from_checkpoint(model : keras.Model)-> keras.Model:
-        checkpoint_dir = os.path.join(PARENT_BASE_PATH,config.CHECKPOINT_FOLDER_PATH)
-        checkpoint_path = os.path.join(checkpoint_dir,"cp-best.ckpt")
-        model.load_weights(checkpoint_path)
-        return model
-
-    @staticmethod
-    def plot_model_training(from_log_file=True):
-
-        if from_log_file:
-            history = pd.read_csv(os.path.join(PARENT_BASE_PATH,
-                                                config.MODEL_SAVE_PATH,
-                                                config.MODEL_NAME,
-                                                'history_log.csv'))
-
-        pltxt.clf()
-        pltxt.plotsize(100, 30)
-        pltxt.subplots(1, 2)
-        pltxt.subplot(1, 1)
-        pltxt.subplot(1, 2)
-
-        pltxt.subplot(1, 1)
-        pltxt.theme('pro')
-        pltxt.plot(history['loss'], marker = "hd", label = "loss")
-        pltxt.plot(history['val_loss'], marker = "hd", label = "val loss")
-        pltxt.xlabel('epochs')
-        pltxt.ylabel('loss')
-        pltxt.title('Model loss')
-
-        metrics_keys = ['accuracy']
-        pltxt.subplot(1, 2)
-        pltxt.theme('pro')
-        pltxt.plot(history[metrics_keys[0]], marker = "hd", label = metrics_keys[0])
-        pltxt.plot(history['val_' + metrics_keys[0]], marker = "hd", label = "val " + metrics_keys[0])
-        pltxt.xlabel('epochs')
-        pltxt.ylabel(metrics_keys[0])
-        pltxt.title('Model '+ metrics_keys[0])
-
-        pltxt.show()
+        try:
+            checkpoint_dir = os.path.join(PARENT_BASE_PATH,config.CHECKPOINT_FOLDER_PATH,config.MODEL_NAME)
+            checkpoint_path = os.path.join(checkpoint_dir,"cp-best.ckpt")
+            model.load_weights(checkpoint_path)
+            return model
+        except:
+            raise ValueError("❌ No checkpoint found")
 
     @staticmethod
     def plot_train_curves(history, metrics_keys = ['accuracy']):
@@ -324,7 +341,7 @@ class PlayModel():
         pltxt.show()
 
     @staticmethod
-    def save_history(object_history):
+    def save_history(object_history, timestamp):
         """Save the train history as a csv file
         """
         print('Saving model train history...')
@@ -334,9 +351,9 @@ class PlayModel():
         hist_csv_file = os.path.join(PARENT_BASE_PATH,
                                     config.MODEL_SAVE_PATH,
                                     config.MODEL_NAME,
-                                    'history_log.csv')
+                                    f"{timestamp}_history_log.csv")
         hist_df = pd.DataFrame(object_history.history)
         with open(hist_csv_file, mode='w') as f:
             hist_df.to_csv(f)
-        print(f"✅ Model train history saved in csv {hist_csv_file}")
+        print(f"✅ Model train history saved in {hist_csv_file}")
         return None
