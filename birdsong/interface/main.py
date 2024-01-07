@@ -82,6 +82,6 @@ if __name__ == '__main__':
     try:
         #preprocess()
         #train()
-        continue_training_model(from_checkpoint=True)
+        continue_training_model(from_checkpoint=False)
     except Exception:
         print(f"❌ Error {str(Exception)}")

@@ -79,38 +79,7 @@ class PlayModel():
         except:
             raise ValueError("❌ No checkpoint found")
 
-    def load_model(self)-> keras.Model:
-        """
-        Return a saved model:
-        - locally (latest one in alphabetical order)
-        Return None (but do not Raise) if no model is found
 
-        """
-        if config.MODEL_TARGET == "local":
-
-            print(f"\nLoad latest model from local registry...")
-
-            model_save_dir = os.path.join(PARENT_BASE_PATH, config.MODEL_SAVE_PATH, config.MODEL_NAME)
-
-            # Get the latest model version name by the timestamp on disk
-            local_model_paths = glob.glob(f"{model_save_dir}/*.h5")
-
-            if not local_model_paths:
-                return None
-
-            most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
-
-            print( most_recent_model_path_on_disk)
-
-            print(f"\nLoad latest model from disk...")
-
-            latest_model = keras.models.load_model(most_recent_model_path_on_disk)
-
-            print("✅ Model loaded from local disk")
-            print("-"*30)
-            return latest_model
-        else:
-            return None
 
     def predict_model(self, data_to_predict):
         """This method is used to predict the class of a new audio file."""
@@ -184,6 +153,40 @@ class PlayModel():
         timestamp = self.save_model(model)
         self.save_history(history,timestamp)
         return model
+
+    @staticmethod
+    def load_model()-> keras.Model:
+        """
+        Return a saved model:
+        - locally (latest one in alphabetical order)
+        Return None (but do not Raise) if no model is found
+
+        """
+        if config.MODEL_TARGET == "local":
+
+            print(f"\nLoad latest model from local registry...")
+
+            model_save_dir = os.path.join(PARENT_BASE_PATH, config.MODEL_SAVE_PATH, config.MODEL_NAME)
+
+            # Get the latest model version name by the timestamp on disk
+            local_model_paths = glob.glob(f"{model_save_dir}/*.h5")
+
+            if not local_model_paths:
+                return None
+
+            most_recent_model_path_on_disk = sorted(local_model_paths)[-1]
+
+            print( most_recent_model_path_on_disk)
+
+            print(f"\nLoad latest model from disk...")
+
+            latest_model = keras.models.load_model(most_recent_model_path_on_disk)
+
+            print("✅ Model loaded from local disk")
+            print("-"*30)
+            return latest_model
+        else:
+            return None
 
     @staticmethod
     def evaluate_model(model, test_data)-> dict:
