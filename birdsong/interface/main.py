@@ -59,7 +59,7 @@ def continue_training_model(from_checkpoint : bool=False):
 
     IF 'from_checkpoint' --> True : retrain model from the best checkpoint.
 
-    ELSE 'from_checkpoint' --> False : retran the latest saved model.
+    ELSE 'from_checkpoint' --> False : retrain the latest saved model.
 
     '''
     model_to_train = PlayModel()
