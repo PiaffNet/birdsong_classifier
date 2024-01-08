@@ -9,6 +9,7 @@ pydub
 audiomentations
 pyyaml
 h5py
+plotext
 
 fastapi
 uvicorn

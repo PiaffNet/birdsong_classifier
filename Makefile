@@ -18,6 +18,7 @@ run_predict:
 run_preprocess_and_train:
 	python -c 'from birdsong.interface.main import preprocess_and_train; preprocess_and_train()'
 
+
 run_api:
 	uvicorn birdsong.api.fast:app --reload
 

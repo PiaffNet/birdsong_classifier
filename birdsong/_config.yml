@@ -1,3 +1,4 @@
+#==============================================================================================================================================
 # This file contains all the parameters used in the project
 # You can change the values of the parameters to adapt the project to your needs
 # You can also add new parameters if you need them.
@@ -34,7 +35,7 @@
 #   - LEARNING_RATE: float, learning rate for tensorflow optimizers. we implemented today only Adam
 #   - PATIENCE : int, argument patience in tensorflow EarlyStopping. Number of epochs with no improvement after which training will be stopped
 # - sound augmenter encoders variables
-#
+#==============================================================================================================================================
 # data load parameters
 MODEL_TARGET : "local" #to move in .env
 OUTPUT_FORMAT : "png"
