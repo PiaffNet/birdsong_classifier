@@ -27,7 +27,8 @@ def test_outputs_data_folder_are_not_empty(test_audiopreprocessor):
 
     dst_folder = test_audiopreprocessor.output_folder
     all_classes = get_folders_labels(dst_folder)
-    if all_classes != []:
-        for class_label in all_classes:
-            files_nb = len(glob.glob(os.path.join(dst_folder, class_label,"*.png")))
-            assert files_nb > 0
+    assert len(all_classes) > 1
+
+    for class_label in all_classes:
+        files_nb = len(glob.glob(os.path.join(dst_folder, class_label,"*.png")))
+        assert files_nb > 0
