@@ -13,7 +13,7 @@ def test_silence_dir_in_inputs_data(test_audiopreprocessor):
 
     src_folder = test_audiopreprocessor.input_folder
     all_classes = get_folders_labels(src_folder)
-    assert "silence" in all_classes
+    assert "silence" in all_classes, "silence folder should be in input data"
 
 def test_inputs_data_folder_are_not_empty(test_audiopreprocessor):
 
@@ -21,7 +21,7 @@ def test_inputs_data_folder_are_not_empty(test_audiopreprocessor):
     all_classes = get_folders_labels(src_folder)
     for class_label in all_classes:
         files_nb = len(glob.glob(os.path.join(src_folder, class_label,"*.mp3")))
-        assert files_nb > 0
+        assert files_nb > 0, f"folder {class_label} is empty"
 
 def test_outputs_data_folder_are_not_empty(test_audiopreprocessor):
 
@@ -31,4 +31,4 @@ def test_outputs_data_folder_are_not_empty(test_audiopreprocessor):
 
     for class_label in all_classes:
         files_nb = len(glob.glob(os.path.join(dst_folder, class_label,"*.png")))
-        assert files_nb > 0
+        assert files_nb > 0, f"folder {class_label} is empty"
