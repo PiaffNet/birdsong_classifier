@@ -24,7 +24,7 @@ class AudioSlicer():
         self.silence_intolerance = int(6)
         self.frame_length = int(2048)
         self.duration = int(3000) #ms
-        self.silence_path = os.path.join(self.target_directory,"silence")
+        self.silence_path = None
 
     @staticmethod
     def make_splits(file_n, sr, frame_length, duration):
@@ -35,21 +35,30 @@ class AudioSlicer():
             song = AudioSegment.from_file(file_n, "mp3")
             splits = song[::duration]
             return 1, splits, rms_tot
-        except:
+        except Exception as e:
+            print(file_n)
+            print(type(e))
+            print(str(e))
             return 0, 0, 0
 
-    def slice_audio(self):
-        """ Slices the audio files in the input_directory into 3 seconds mp3s
-        and puts them in the corresponding folder, if the slice is too short or too silent
-        it goes into different folders.
-        """
+    def get_bird_code_list(self):
         ref_csv_file_path = os.path.join(DATA_RAW_PATH,"train.csv")
         df = pd.read_csv(ref_csv_file_path)
-        create_folder_if_not_exists(self.silence_path)
         _species = list(df.species[df['country'] == self.country].unique())
         df_country_species = df[df['species'].isin(_species)]
         df_country_selection = df_country_species[df_country_species['rating'] > self.rating_threshold]
         bird_code_list = df_country_selection.loc[:,'ebird_code'].unique().tolist()
+        return df, bird_code_list
+
+    def slice_audio(self):
+        """ Slices the audio files in the input_directory into 3 seconds mp3s
+        and puts them in the corresponding folder, if slice is too silent but it coppied
+        into silence directory, if the slice is too short or too silent than slice is ignored.
+        """
+        self.silence_path = os.path.join(self.target_directory,"silence")
+        create_folder_if_not_exists(self.silence_path)
+
+        df, bird_code_list = self.get_bird_code_list()
 
         for dirspecies in bird_code_list:
             f = os.path.join(self.input_directory, dirspecies)
