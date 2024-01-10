@@ -23,3 +23,11 @@ run_api:
 	uvicorn birdsong.api.fast:app --reload
 
 #################### TESTS ACTIONS ###################
+test_config_file:
+	@pytest tests/test_config.py
+
+test_slicer_class:
+	@pytest tests/test_slicer.py
+
+test_preprocess_class:
+	@pytest tests/test_to_image.py
