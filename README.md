@@ -1,18 +1,24 @@
-# birdsong_classifier
+# Birdsong Classifier
 
-we selected a Fast Fourier Transform (FFT) window size of $10.7$ ms ($512$ samples at $48$ kHz sampling rate) and an overlap of 25%, each frame representing a time step of 8 ms.
+## General information
 
-The frequency range of most bird vocalizations is limited between 250 Hz and 8.3 kHz (Hu and Cardoso, 2009, supplemental material). Therefore, we restricted the frequency range of the spectrogram to values between 150 Hz and 15 kHz covering the frequency range of the vast majority of bird vocalizations but also leaving room for pitch shifts during data augmentation.
+The library it's part of a larger *research* project called **PiaffNet**. Our goal is to make easier for everyone the studies of bird vocalizations by modern **Deep Learning** algorithms. PiaffNet uses modern standard of implementations in Python language. We priveledge simplicity and good enough accuracy over unnescessory complexity.
 
-We performed frequency compression using a mel scale with 64 bands and a break frequency at 1750 Hz—considerably above the original proposal (Stevens et al., 1937) to achieve approximate linear scaling up to 500 Hz. According to the work of Schlüter (2018), using a nonlinear magnitude scale seems to be the most appropriate choice for bird call recognition in noisy environments
+## Introduction
+
+The birdsong classifier library provides a simple predictive model based on supervised learning over data samples of annotated bird sounds. We use a **Convolutional Neural Network** (CNN) models. Note that this version implemented in TensorFlow library.
+
+The classifier uses a MEL sounds spectograms with $64$ bands and a break frequency at $1750$ Hz. The spectrogam constructed using a Fast Fourier Transform (FFT) with $512$ samples at $48$ kHz sampling rate and an overlap of $25$%. The frequency range of spectogram is limited between $150$ Hz and $15$ kHz to assure the frequency range covering of the majority of bird vocalizations.
 
 
 ## install
 
-### Wagon general install
+### pip install
 
 ```bash
 pip install --upgrade pip
-pip install -r https://gist.githubusercontent.com/krokrob/53ab953bbec16c96b9938fcaebf2b199/raw/9035bbf12922840905ef1fbbabc459dc565b79a3/minimal_requirements.txt
+pip install -r requirements.txt
 pip list
 ```
+
+## how to use
