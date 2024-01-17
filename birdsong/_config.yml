@@ -40,7 +40,7 @@
 MODEL_TARGET : "local" #to move in .env
 OUTPUT_FORMAT : "png"
 SPECTOGRAM_TYPE : "MEL"
-DATA_OUTPUT_FOLDER : "images_png"
+DATA_OUTPUT_FOLDER : "images_png_test"
 
 # MEL spectogram variables
 SAMPLING_RATE: 48000 #in (Hz)
@@ -63,6 +63,9 @@ PATIENCE : 5 #EarlyStopping
 
 
 # sound augmenter encoders variables
+ADD_SNR_NOISE: True
+ADD_TIME_PITCH_SHIFT: True
+ADD_REVERSE: True
 MIN_SNR_DB : 5.0
 MAX_SNR_DB : 40.0
 PROBABILITY_SNR : 1.0
@@ -70,6 +73,7 @@ MIN_SHIFT: -0.5
 MAX_SHIFT: 0.5
 SHIFT_UNIT: "seconds"
 PROBABILITY_SHIFT: 1.0
-MIN_SEMITONES: -50
-MAX_SEMITONES: 15
+MIN_SEMITONES: -5
+MAX_SEMITONES: 5
 PROBABILITY_PITCH: 1.0
+PROBABILITY_REVERSE: 1.0
