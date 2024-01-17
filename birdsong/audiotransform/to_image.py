@@ -32,6 +32,10 @@ class AudioPreprocessor:
         self.image_shape = None
         self.nb_classes = None
 
+        self.add_SNR_noise = config.ADD_SNR_NOISE
+        self.add_time_pitch_shift = config.ADD_TIME_PITCH_SHIFT
+        self.add_reverse = config.ADD_REVERSE
+
 
 
     def preprocess_audio_files(self, file_path_list, target_directory):
@@ -110,19 +114,19 @@ class AudioPreprocessor:
             # Step 3: augment audio file
             audio_augmenter = AudioAugmenter()
 
-            if config.ADD_SNR_NOISE:
+            if self.add_SNR_noise:
                 sample_snr_noise = audio_augmenter.transform_signal_add_SNR_noise(sample, sample_rate)
                 spectogram_array_snr = self.get_spectogram(sample_snr_noise, sample_rate)
                 target_path_snr = os.path.join(target_directory, f'{file_label}_snr_noise.{self.output_format}')
                 self.save_spectogram(spectogram_array_snr, target_path_snr)
 
-            if config.ADD_TIME_PITCH_SHIFT:
+            if self.add_time_pitch_shift
                 sample_pitch_shift = audio_augmenter.transform_signal_pitch_shift(sample, sample_rate)
                 spectogram_array_pitch_shift = self.get_spectogram(sample_pitch_shift, sample_rate)
                 target_path_pitch_shift = os.path.join(target_directory, f'{file_label}_pitch_shift.{self.output_format}')
                 self.save_spectogram(spectogram_array_pitch_shift, target_path_pitch_shift)
 
-            if config.ADD_REVERSE:
+            if self.add_reverse:
                 sample_reverse = audio_augmenter.transform_signal_reverse(sample, sample_rate)
                 spectogram_array_reverse = self.get_spectogram(sample_reverse, sample_rate)
                 target_path_reverse = os.path.join(target_directory, f'{file_label}_reverse.{self.output_format}')
