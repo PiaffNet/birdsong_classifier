@@ -2,7 +2,7 @@
 
 ## General information
 
-The library it's part of a larger *research* project called **PiaffNet**. Our goal is to make easier for everyone the studies of bird vocalizations by modern **Deep Learning** algorithms. PiaffNet uses modern standard of implementations in Python language. We priveledge simplicity and good enough accuracy over unnescessory complexity.
+The library it's part of a larger *research* project called **PiaffNet**. Our goal is to make it easier for everyone to study and identify birds by their vocalizations using modern **Deep Learning** algorithms. PiaffNet uses modern standard of implementations in Python language. We priveledge simplicity and good enough accuracy over unnescessory complexity.
 
 ## Introduction
 
