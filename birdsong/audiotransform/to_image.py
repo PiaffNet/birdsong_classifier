@@ -6,7 +6,7 @@ import skimage as ski
 from birdsong.config import config
 from birdsong.utils import get_folders_labels, create_folder_if_not_exists, get_image_shape
 from birdsong.audiotransform.standardisation import spectrogram_image
-from birdsong import PARENT_BASE_PATH, DATA_RAW_PATH, DATA_SPLIT_PATH
+from birdsong import PARENT_BASE_PATH, DATA_RAW_PATH, DATA_SPLIT_PATH, DATA_OUTPUT_FOLDER
 
 
 def select_species_per_country(df, country="France"):

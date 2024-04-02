@@ -22,3 +22,56 @@ pip list
 ```
 
 ## how to use
+
+### Train your model
+
+#### Preparing audio for preprocessing
+
+When in project directory
+
+```bash
+mkdir raw_data
+mkdir raw_data/train_audio
+mkdir raw_data/split_data
+mkdir raw_data/images_png
+```
+
+Copy your files in the train_audio directory, the program uses audio_dataset_from_directory so it needs to be in this format :
+
+train_audio/<br>
+&emsp;species1/<br>
+&emsp;&emsp;song1.audio<br>
+&emsp;&emsp;song2.audio<br>
+&emsp;&emsp;...<br>
+&emsp;species2/<br>
+&emsp;&emsp;song1.audio<br>
+&emsp;&emsp;song2.audio<br>
+&emsp;&emsp;...<br>
+&emsp;...<br>
+
+
+
+Slice your audio and detect silent segments :
+
+```bash
+make run_slicing
+```
+
+
+#### Transform audio to mel spectrogram
+
+```bash
+make run_preprocess
+```
+
+#### Train the model on your data
+
+```bash
+make run_train
+```
+
+#### Predict a bird from an audio file
+
+```bash
+make run_predict
+```

@@ -71,9 +71,10 @@ def continue_training_model(from_checkpoint : bool=False):
     print("="*30)
     return 1, predictions_df
 
-def predict(data_to_predict):
+def predict(data_to_predict = None):
     print('Predicting...')
-
+    if data_to_predict == None :
+        data_to_predict = input("Path to file : \n>")
     available_model = PlayModel()
     predictions = available_model.predict_model(data_to_predict)
     return 1, predictions

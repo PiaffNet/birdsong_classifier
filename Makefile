@@ -4,7 +4,7 @@ reinstall_package:
 
 #################### PACKAGE ACTIONS ###################
 run_slicing:
-	python -c 'from birdsong.interface.main import slicing; slicing()'
+	python -c 'from birdsong.interface.main import slice_audio; slice_audio()'
 
 run_preprocess:
 	python -c 'from birdsong.interface.main import preprocess; preprocess()'
