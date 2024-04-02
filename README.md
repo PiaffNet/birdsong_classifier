@@ -33,6 +33,7 @@ When in project directory
 mkdir raw_data
 mkdir raw_data/train_audio
 mkdir raw_data/split_data
+mkdir raw_data/images_png
 ```
 
 Copy your files in the train_audio directory, the program uses audio_dataset_from_directory so it needs to be in this format :
