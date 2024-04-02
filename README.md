@@ -25,7 +25,7 @@ pip list
 
 ### Train your model
 
-#### Slice your audio
+#### Preparing audio for preprocessing
 
 When in project directory
 
@@ -51,8 +51,21 @@ train_audio/<br>
 
 
 
-Slice your audio :
+Slice your audio and detect silent segments :
 
 ```bash
 make run_slicing
+```
+
+
+#### Transform audio to mel spectrogram
+
+```bash
+make run_preprocess
+```
+
+#### Train the model on your data
+
+```bash
+make run_train
 ```
