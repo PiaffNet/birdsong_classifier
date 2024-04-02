@@ -22,3 +22,29 @@ pip list
 ```
 
 ## how to use
+
+### Train your model
+
+#### Slice your audio
+
+When in project directory
+
+```bash
+mkdir raw_data
+mkdir raw_data/train_audio
+mkdir raw_data/split_data
+```
+
+Copy your files in the train_audio directory, the program uses audio_dataset_from_directory so it needs to be in this format :
+train_audio/
+    species1/
+      song.audio
+    species2/
+      song.audio
+    ..../
+
+Slice your audio :
+
+```bash
+make run_slicing
+```
