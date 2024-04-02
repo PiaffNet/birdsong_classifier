@@ -35,13 +35,13 @@ mkdir raw_data/train_audio
 mkdir raw_data/split_data
 ```
 
-Copy your files in the train_audio directory, the program uses audio_dataset_from_directory so it needs to be in this format : \n
-train_audio/\n
-    species1/\n
-      song.audio\n
+Copy your files in the train_audio directory, the program uses audio_dataset_from_directory so it needs to be in this format :
+train_audio/
+    species1/
+      song.audio
     species2/\n
-      song.audio\n
-    ..../\n
+      song.audio
+    ..../
 
 Slice your audio :
 
