@@ -69,3 +69,9 @@ make run_preprocess
 ```bash
 make run_train
 ```
+
+#### Predict a bird from an audio file
+
+```bash
+make run_predict
+```
