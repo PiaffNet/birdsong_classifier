@@ -117,7 +117,7 @@ class PlayModel():
         self.save_history(history,timestamp)
         return model
 
-    def __train_model_from_checkpoint(self)-> [keras.Model, dict]:
+    def __train_model_from_checkpoint(self)-> keras.Model:
         """This method is used to train a model from the last checkpoint.
         note that is a private method and can only be called inside the class."""
 
