@@ -37,16 +37,17 @@ mkdir raw_data/split_data
 
 Copy your files in the train_audio directory, the program uses audio_dataset_from_directory so it needs to be in this format :
 
-train_audio/
-    species1/
-        song1.audio
-        song2.audio
-        ...
-    species2/
-        song1.audio
-        song2.audio
-        ...
-    ...
+train_audio/<br>
+&emsp;species1/<br>
+&emsp;&emsp;song1.audio<br>
+&emsp;&emsp;song2.audio<br>
+&emsp;&emsp;...<br>
+&emsp;species2/<br>
+&emsp;&emsp;song1.audio<br>
+&emsp;&emsp;song2.audio<br>
+&emsp;&emsp;...<br>
+...<br>
+
 
 
 Slice your audio :
